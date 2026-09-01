@@ -23,9 +23,12 @@ Do Supabase first (see [SETUP.md](SETUP.md)); you need its values for both servi
    | `GOOGLE_PLACES_API_KEY` | optional |
    | `CORS_ORIGINS` | `["https://<your-vercel-app>.vercel.app"]` (JSON array) |
 
-4. Deploy. The container runs `alembic upgrade head` then `uvicorn` on `$PORT`.
-   Healthcheck: `GET /health`.
-5. Copy the public URL (e.g. `https://wander-api.up.railway.app`).
+4. Deploy. The container runs `alembic upgrade head` then `uvicorn` on `$PORT`
+   (Railway sets `PORT=8080`). Healthcheck: `GET /health`.
+5. Settings → Networking → **Generate Domain**. If the domain shows `→ Port 8000`
+   (Railway guessed before the app started), click the edit pencil and pick the
+   detected **8080 (uvicorn)** — otherwise the URL 502s while the app runs fine.
+6. `GET https://<domain>/health` → `{"status":"ok"}`.
 
 > `ENVIRONMENT=production` disables the `X-Dev-User` bypass — every request must carry a
 > valid Supabase JWT.
