@@ -1,0 +1,12 @@
+# Keep the image small and never ship local secrets / caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+*.log
+tests/
+.git/
