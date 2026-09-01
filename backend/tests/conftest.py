@@ -10,6 +10,12 @@ import os
 import pytest
 import pytest_asyncio
 
+# Force the offline/mock path — tests must never call the real Gemini/Places APIs,
+# even if the developer's .env has live keys. Set before app.config is imported.
+os.environ["GEMINI_API_KEY"] = ""
+os.environ["GOOGLE_PLACES_API_KEY"] = ""
+os.environ["ENVIRONMENT"] = "development"
+
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 
 pytestmark = pytest.mark.skipif(

@@ -18,7 +18,10 @@ class Settings(BaseSettings):
     supabase_jwt_audience: str = "authenticated"
 
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-2.5-flash"
+    # Alias model id — auto-tracks the current flash-lite release so a retired
+    # versioned model can't break generation. Override per-env if you want a
+    # specific version (e.g. gemini-3.5-flash-lite) or a bigger model.
+    gemini_model: str = "gemini-flash-lite-latest"
 
     google_places_api_key: str | None = None
 

@@ -1,10 +1,15 @@
 """Itinerary generation via the Gemini API, with a no-key mock fallback."""
 
+import asyncio
 import json
 
 from app.config import get_settings
 from app.models.db_models import Trip
 from app.models.schemas import GeneratedDay, GeneratedItem, GeneratedItinerary
+
+# Transient Gemini statuses worth retrying with backoff.
+_RETRY_CODES = {429, 500, 502, 503, 504}
+_MAX_ATTEMPTS = 4
 
 
 def _num_days(trip: Trip) -> int:
@@ -81,16 +86,31 @@ async def generate_days(trip: Trip) -> GeneratedItinerary:
         return _mock_itinerary(trip)
 
     from google import genai
+    from google.genai import errors
 
     client = genai.Client(api_key=settings.gemini_api_key)
-    response = await client.aio.models.generate_content(
-        model=settings.gemini_model,
-        contents=_build_prompt(trip),
-        config={
-            "response_mime_type": "application/json",
-            "response_schema": GeneratedItinerary,
-        },
-    )
+    prompt = _build_prompt(trip)
+    config = {
+        "response_mime_type": "application/json",
+        "response_schema": GeneratedItinerary,
+        "automatic_function_calling": {"disable": True},
+    }
+
+    last_exc: Exception | None = None
+    for attempt in range(_MAX_ATTEMPTS):
+        try:
+            response = await client.aio.models.generate_content(
+                model=settings.gemini_model, contents=prompt, config=config
+            )
+            break
+        except errors.APIError as exc:
+            last_exc = exc
+            if getattr(exc, "code", None) not in _RETRY_CODES or attempt == _MAX_ATTEMPTS - 1:
+                raise
+            await asyncio.sleep(2**attempt)  # 1s, 2s, 4s
+    else:  # pragma: no cover - loop always breaks or raises
+        raise last_exc  # type: ignore[misc]
+
     parsed = getattr(response, "parsed", None)
     if isinstance(parsed, GeneratedItinerary):
         return parsed
