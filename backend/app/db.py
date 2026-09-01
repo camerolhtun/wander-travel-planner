@@ -11,7 +11,7 @@ settings = get_settings()
 # (e.g. Supabase's transaction pooler on port 6543), and is harmless on a direct
 # connection. NullPool-style behaviour is left to the pooler; SQLAlchemy keeps a
 # small pool for direct connections.
-_connect_args = {"statement_cache_size": 0}
+_connect_args = {"statement_cache_size": 0, "ssl": "prefer"}
 
 engine = create_async_engine(
     settings.database_url,
