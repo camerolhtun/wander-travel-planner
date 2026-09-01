@@ -1,49 +1,90 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { controlClass } from "@/components/ui/Field";
 import { createClient } from "@/lib/supabase/client";
 
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/trips";
-  const callbackUrl = (origin: string) =>
-    `${origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
+  const rawError = searchParams.get("error");
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [linkSent, setLinkSent] = useState(false);
   const [error, setError] = useState<string | null>(
-    searchParams.get("error") ? "Sign-in failed. Please try again." : null,
+    rawError
+      ? /expired|invalid/i.test(rawError)
+        ? "That magic link expired or was already used. Sign in with your password instead."
+        : decodeURIComponent(rawError)
+      : null,
   );
 
-  async function signInWithEmail(e: React.FormEvent) {
-    e.preventDefault();
+  function client() {
+    return createClient();
+  }
+
+  async function run(fn: () => Promise<{ error: { message: string } | null }>) {
     setError(null);
+    setBusy(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: callbackUrl(window.location.origin) },
-      });
-      if (error) setError(error.message);
-      else setSent(true);
+      const { error } = await fn();
+      if (error) {
+        setError(error.message);
+        return false;
+      }
+      return true;
     } catch {
-      setError("Supabase isn't configured yet — add NEXT_PUBLIC_SUPABASE_* to .env.local.");
+      setError("Supabase isn't configured — add NEXT_PUBLIC_SUPABASE_* to .env.local.");
+      return false;
+    } finally {
+      setBusy(false);
     }
   }
 
-  async function signInWithGoogle() {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: callbackUrl(window.location.origin) },
-      });
-    } catch {
-      setError("Supabase isn't configured yet — add NEXT_PUBLIC_SUPABASE_* to .env.local.");
+  async function signIn(e: React.FormEvent) {
+    e.preventDefault();
+    const ok = await run(() => client().auth.signInWithPassword({ email, password }));
+    if (ok) {
+      router.push(next);
+      router.refresh();
     }
+  }
+
+  async function signUp() {
+    const ok = await run(() => client().auth.signUp({ email, password }));
+    if (ok) {
+      router.push(next);
+      router.refresh();
+    }
+  }
+
+  async function sendMagicLink() {
+    const ok = await run(() =>
+      client().auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
+      }),
+    );
+    if (ok) setLinkSent(true);
+  }
+
+  async function signInWithGoogle() {
+    await run(async () => {
+      await client().auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
+      });
+      return { error: null };
+    });
   }
 
   return (
@@ -52,31 +93,57 @@ function LoginForm() {
         <h1 className="text-xl font-bold">Sign in</h1>
         <p className="mt-1 text-sm text-muted">to save and edit your trips</p>
 
-        {sent ? (
-          <p className="mt-6 rounded-lg bg-surface-2 p-3 text-sm">
-            Check your email for a magic link.
-          </p>
-        ) : (
-          <form onSubmit={signInWithEmail} className="mt-6 space-y-3">
-            <input
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={controlClass}
-            />
-            <Button className="w-full">Send magic link</Button>
-          </form>
-        )}
+        <form onSubmit={signIn} className="mt-6 space-y-3">
+          <input
+            type="email"
+            required
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={controlClass}
+          />
+          <input
+            type="password"
+            required
+            minLength={6}
+            placeholder="Password (6+ characters)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={controlClass}
+          />
+          <div className="flex gap-2">
+            <Button className="flex-1" disabled={busy}>
+              {busy ? "…" : "Sign in"}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              className="flex-1"
+              disabled={busy}
+              onClick={signUp}
+            >
+              Create account
+            </Button>
+          </div>
+        </form>
 
         <div className="my-4 flex items-center gap-3 text-xs text-muted">
           <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
         </div>
 
-        <Button variant="secondary" className="w-full" onClick={signInWithGoogle}>
-          Continue with Google
-        </Button>
+        <div className="space-y-2">
+          <Button
+            variant="secondary"
+            className="w-full"
+            disabled={busy || !email}
+            onClick={sendMagicLink}
+          >
+            {linkSent ? "Magic link sent — check your email" : "Email me a magic link"}
+          </Button>
+          <Button variant="secondary" className="w-full" onClick={signInWithGoogle}>
+            Continue with Google
+          </Button>
+        </div>
 
         {error && <p className="mt-4 text-sm text-danger">{error}</p>}
       </div>
