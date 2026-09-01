@@ -1,10 +1,14 @@
 import type { ComponentProps, ReactNode } from "react";
 
 export const controlClass =
-  "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none transition-colors placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/25";
+  "w-full rounded-xl border border-border bg-surface/70 px-3.5 py-2.5 text-sm outline-none " +
+  "transition-[border-color,box-shadow,background-color] duration-200 placeholder:text-muted " +
+  "focus:border-[var(--lake)] focus:bg-surface focus:ring-4 focus:ring-[color-mix(in_oklab,var(--sky)_45%,transparent)]";
 
 export const controlClassSm =
-  "rounded-md border border-border bg-surface px-2 py-1 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/25";
+  "rounded-lg border border-border bg-surface/70 px-2.5 py-1.5 text-sm outline-none " +
+  "transition-[border-color,box-shadow] duration-200 " +
+  "focus:border-[var(--lake)] focus:ring-4 focus:ring-[color-mix(in_oklab,var(--sky)_45%,transparent)]";
 
 export function Label({
   children,
@@ -19,5 +23,9 @@ export function Label({
 }
 
 export function LabelText({ children }: { children: ReactNode }) {
-  return <span className="text-xs font-medium text-muted">{children}</span>;
+  return (
+    <span className="font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.14em] text-muted">
+      {children}
+    </span>
+  );
 }

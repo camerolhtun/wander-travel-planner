@@ -1,39 +1,54 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { TripForm } from "@/components/TripForm";
 import { api } from "@/lib/api";
 
-export default function NewTripPage() {
+function NewTrip() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const to = useSearchParams().get("to") ?? undefined;
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-10">
-      <Link href="/trips" className="text-sm text-muted hover:text-foreground">
+    <main className="mx-auto max-w-2xl px-6 py-14 md:pl-24">
+      <Link
+        href="/trips"
+        className="font-[var(--font-mono)] text-xs uppercase tracking-[0.14em] text-muted transition-colors hover:text-foreground"
+      >
         ← My trips
       </Link>
-      <h1 className="mt-2 mb-1 text-2xl font-bold">Plan a trip</h1>
-      <p className="mb-6 text-sm text-muted">
-        We&apos;ll generate a day-by-day itinerary you can edit afterwards.
+      <p className="eyebrow mt-6">Plot a route</p>
+      <h1 className="mt-3 font-[var(--font-display)] text-4xl font-normal tracking-tight">
+        Plan a trip
+      </h1>
+      <p className="mb-8 mt-2 text-muted">
+        Wander draws a day-by-day itinerary you can edit afterwards.
       </p>
       <TripForm
+        initial={to ? { destination: to } : undefined}
         submitLabel="Generate itinerary"
         onSubmit={async (values) => {
           const trip = await api.createTrip(values);
           queryClient.invalidateQueries({ queryKey: ["trips"] });
-          // Kick off generation but don't block navigation on it — if it fails,
-          // the trip page shows the empty state with a Regenerate button.
           try {
             await api.generate(trip.id);
           } catch {
-            // handled on the trip page
+            // the trip page shows the empty state with a Regenerate button
           }
           router.push(`/trips/${trip.id}`);
         }}
       />
     </main>
+  );
+}
+
+export default function NewTripPage() {
+  return (
+    <Suspense>
+      <NewTrip />
+    </Suspense>
   );
 }

@@ -101,14 +101,17 @@ function LoginForm() {
   }
 
   return (
-    <main className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-5">
-      <div className="rounded-xl border border-border bg-surface p-6">
-        <h1 className="text-xl font-bold">Sign in</h1>
-        <p className="mt-1 text-sm text-muted">
-          to save and edit your trips — no email confirmation needed
+    <main className="mx-auto flex min-h-[calc(100svh-5rem)] max-w-sm flex-col justify-center px-6">
+      <div className="glass rounded-[26px] p-7">
+        <p className="eyebrow">Wander</p>
+        <h1 className="mt-3 font-[var(--font-display)] text-3xl font-normal tracking-tight">
+          Sign in
+        </h1>
+        <p className="mt-1.5 text-sm text-muted">
+          to save and edit your trips — no email confirmation needed.
         </p>
 
-        <form onSubmit={signIn} className="mt-6 space-y-3">
+        <form onSubmit={signIn} className="mt-7 space-y-3">
           <input
             type="email"
             autoComplete="email"
@@ -126,22 +129,22 @@ function LoginForm() {
             className={controlClass}
           />
           <div className="flex gap-2">
-            <Button className="flex-1" disabled={busy}>
+            <Button className="flex-1 whitespace-nowrap" disabled={busy}>
               {busy ? "…" : "Sign in"}
             </Button>
             <Button
               type="button"
               variant="secondary"
-              className="flex-1"
+              className="flex-1 whitespace-nowrap"
               disabled={busy}
               onClick={signUp}
             >
-              Create account
+              Sign up
             </Button>
           </div>
         </form>
 
-        <div className="my-4 flex items-center gap-3 text-xs text-muted">
+        <div className="my-5 flex items-center gap-3 font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.2em] text-muted">
           <span className="h-px flex-1 bg-border" /> or{" "}
           <span className="h-px flex-1 bg-border" />
         </div>
@@ -155,7 +158,7 @@ function LoginForm() {
           {linkSent ? "Magic link sent — check your email" : "Email me a magic link"}
         </Button>
 
-        {error && <p className="mt-4 text-sm text-danger">{error}</p>}
+        {error && <p className="mt-4 text-sm text-[var(--danger)]">{error}</p>}
       </div>
     </main>
   );

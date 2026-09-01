@@ -72,13 +72,15 @@ export function DaySection({
   }
 
   return (
-    <section className="scroll-mt-20" id={`day-${day.day_index}`}>
-      <div className="mb-2 flex items-baseline justify-between gap-3">
-        <h2 className="text-lg font-semibold">
-          Day {day.day_index}
-          {day.date && <span className="ml-2 text-sm font-normal text-muted">{day.date}</span>}
+    <section className="scroll-mt-24" id={`day-${day.day_index}`}>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="font-[var(--font-mono)] text-xs uppercase tracking-[0.2em] text-muted">
+          Day {String(day.day_index).padStart(2, "0")}
+          {day.date && <span className="ml-2 normal-case tracking-normal">{day.date}</span>}
         </h2>
-        <span className={`text-sm ${overDay ? "text-danger" : "text-muted"}`}>
+        <span
+          className={`font-[var(--font-mono)] text-xs ${overDay ? "text-[var(--danger)]" : "text-muted"}`}
+        >
           {currency} {dayCost.toFixed(0)}
           {day.est_budget != null && ` / ${day.est_budget}`}
         </span>
@@ -86,7 +88,7 @@ export function DaySection({
 
       {editingSummary ? (
         <form
-          className="mb-3 space-y-2"
+          className="mb-4 mt-2 space-y-2"
           onSubmit={(e) => {
             e.preventDefault();
             const f = new FormData(e.currentTarget);
@@ -124,18 +126,18 @@ export function DaySection({
           </div>
         </form>
       ) : (
-        <p className="mb-3 text-sm text-muted">
-          {day.summary || <span className="italic">No summary</span>}{" "}
+        <p className="mb-5 mt-2 max-w-prose text-[15px] leading-relaxed text-muted">
+          {day.summary || <span className="italic">No summary yet.</span>}{" "}
           <button
             onClick={() => setEditingSummary(true)}
-            className="text-primary hover:underline print:hidden"
+            className="text-[var(--lake)] hover:underline print:hidden"
           >
             edit
           </button>
         </p>
       )}
 
-      <ul className="space-y-2 border-l-2 border-border pl-4">
+      <ul className="space-y-3 border-l border-border pl-6">
         {day.items.map((item, index) => (
           <ItemRow
             key={item.id}
@@ -152,7 +154,7 @@ export function DaySection({
 
       {adding ? (
         <form
-          className="mt-3 space-y-2 rounded-xl border border-dashed border-border p-3"
+          className="glass ml-6 mt-3 space-y-2 rounded-[18px] p-3"
           onSubmit={(e) => {
             e.preventDefault();
             const f = new FormData(e.currentTarget);
@@ -205,9 +207,9 @@ export function DaySection({
       ) : (
         <button
           onClick={() => setAdding(true)}
-          className="mt-3 rounded-lg border border-dashed border-border px-3 py-1.5 text-sm text-muted hover:text-foreground print:hidden"
+          className="ml-6 mt-3 rounded-full border border-dashed border-border px-4 py-1.5 font-[var(--font-mono)] text-xs uppercase tracking-[0.12em] text-muted transition-colors hover:border-[var(--lake)] hover:text-foreground print:hidden"
         >
-          + Add item
+          + Add stop
         </button>
       )}
     </section>

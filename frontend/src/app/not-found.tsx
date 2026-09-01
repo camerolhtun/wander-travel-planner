@@ -1,17 +1,19 @@
+import { Compass } from "@/components/brand/Compass";
 import { ButtonLink } from "@/components/ui/Button";
 
 export default function NotFound() {
   return (
-    <main className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center px-5 text-center">
-      <div className="text-4xl" aria-hidden>
-        🧭
-      </div>
-      <h1 className="mt-4 text-xl font-bold">Page not found</h1>
-      <p className="mt-1 text-sm text-muted">
-        That page doesn&apos;t exist or the trip was removed.
+    <main className="mx-auto flex min-h-[calc(100svh-5rem)] max-w-md flex-col items-center justify-center px-6 text-center">
+      <Compass size={40} />
+      <p className="eyebrow mt-6">404 · off the map</p>
+      <h1 className="mt-3 font-[var(--font-display)] text-3xl font-normal tracking-tight">
+        Nothing here
+      </h1>
+      <p className="mt-2 text-sm text-muted">
+        This page doesn&apos;t exist, or the trip was removed.
       </p>
-      <ButtonLink href="/" className="mt-5">
-        Go home
+      <ButtonLink href="/" arrow className="mt-6">
+        Back home
       </ButtonLink>
     </main>
   );

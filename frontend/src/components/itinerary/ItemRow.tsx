@@ -48,9 +48,18 @@ export function ItemRow({
       queryClient.invalidateQueries({ queryKey: tripCache.key(tripId) }),
   });
 
+  // waypoint dot sitting on the day's trail line
+  const dot = (
+    <span
+      className="absolute -left-[1.72rem] top-2 size-2 rounded-full bg-[var(--lake)] ring-4 ring-[var(--background)]"
+      aria-hidden
+    />
+  );
+
   if (editing) {
     return (
-      <li className="rounded-xl border border-border bg-surface p-3">
+      <li className="glass relative rounded-[18px] p-3">
+        {dot}
         <form
           className="space-y-2"
           onSubmit={(e) => {
@@ -130,55 +139,56 @@ export function ItemRow({
     .join("–");
 
   return (
-    <li className="group rounded-xl border border-border bg-surface p-3">
+    <li className="group relative rounded-[18px] border border-border bg-surface/55 p-3.5 transition-colors duration-200 hover:border-[color-mix(in_oklab,var(--lake)_40%,var(--border))]">
+      {dot}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 font-[var(--font-mono)] text-[0.7rem]">
             <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${meta.badge}`}
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium normal-case ${meta.badge}`}
             >
               <span aria-hidden>{meta.icon}</span>
               {meta.label}
             </span>
-            {timeLabel && <span className="text-xs text-muted">{timeLabel}</span>}
+            {timeLabel && <span className="text-muted">{timeLabel}</span>}
             {item.est_cost != null && (
-              <span className="text-xs text-muted">
+              <span className="text-muted">
                 {currency} {item.est_cost}
               </span>
             )}
           </div>
-          <p className="mt-1 font-medium">{item.title}</p>
+          <p className="mt-1.5 font-medium leading-snug">{item.title}</p>
           {item.description && (
-            <p className="mt-0.5 text-sm text-muted">{item.description}</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted">{item.description}</p>
           )}
           {item.address && (
-            <p className="mt-0.5 text-xs text-muted">{item.address}</p>
+            <p className="mt-1 font-[var(--font-mono)] text-[0.7rem] text-muted">
+              {item.address}
+            </p>
           )}
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-1 print:hidden">
-          <div className="flex gap-0.5">
-            <button
-              onClick={() => onMove(-1)}
-              disabled={isFirst}
-              className="rounded border border-border px-1.5 text-xs disabled:opacity-30"
-              aria-label="Move earlier"
-            >
-              ↑
-            </button>
-            <button
-              onClick={() => onMove(1)}
-              disabled={isLast}
-              className="rounded border border-border px-1.5 text-xs disabled:opacity-30"
-              aria-label="Move later"
-            >
-              ↓
-            </button>
-          </div>
+        <div className="flex shrink-0 flex-col gap-1 opacity-60 transition-opacity group-hover:opacity-100 print:hidden">
+          <button
+            onClick={() => onMove(-1)}
+            disabled={isFirst}
+            className="grid size-6 place-items-center rounded-md border border-border text-xs disabled:opacity-25"
+            aria-label="Move earlier"
+          >
+            ↑
+          </button>
+          <button
+            onClick={() => onMove(1)}
+            disabled={isLast}
+            className="grid size-6 place-items-center rounded-md border border-border text-xs disabled:opacity-25"
+            aria-label="Move later"
+          >
+            ↓
+          </button>
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted print:hidden">
+      <div className="mt-2.5 flex flex-wrap items-center gap-3 font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.1em] text-muted print:hidden">
         <button onClick={() => setEditing(true)} className="hover:text-foreground">
           Edit
         </button>
@@ -186,7 +196,7 @@ export function ItemRow({
           onClick={() => {
             if (confirm(`Delete "${item.title}"?`)) remove.mutate();
           }}
-          className="text-danger hover:underline"
+          className="text-[var(--danger)] hover:underline"
         >
           Delete
         </button>

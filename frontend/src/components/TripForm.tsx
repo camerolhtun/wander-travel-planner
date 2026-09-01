@@ -64,7 +64,7 @@ export function TripForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
+      <section className="glass space-y-4 rounded-[22px] p-5">
         <Label>
           <LabelText>Destination</LabelText>
           <input
@@ -131,7 +131,7 @@ export function TripForm({
         </div>
       </section>
 
-      <section className="space-y-4 rounded-xl border border-border bg-surface p-5">
+      <section className="glass space-y-4 rounded-[22px] p-5">
         <div className="space-y-2">
           <LabelText>Interests</LabelText>
           <div className="flex flex-wrap gap-2">
@@ -143,10 +143,10 @@ export function TripForm({
                   key={opt}
                   onClick={() => toggleInterest(opt)}
                   aria-pressed={on}
-                  className={`rounded-full border px-3 py-1 text-sm capitalize transition-colors ${
+                  className={`rounded-full border px-3.5 py-1.5 text-sm capitalize transition-colors duration-200 ${
                     on
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border hover:bg-surface-2"
+                      ? "border-[var(--lake)] bg-[var(--lake)] text-white"
+                      : "border-border text-muted hover:border-[var(--lake)] hover:text-foreground"
                   }`}
                 >
                   {opt}
@@ -183,9 +183,16 @@ export function TripForm({
         </div>
       </section>
 
-      <div className="flex items-center gap-3">
-        <Button disabled={submitting}>{submitting ? "Working…" : submitLabel}</Button>
-        {error && <p className="text-sm text-danger">{error}</p>}
+      <div className="flex flex-wrap items-center gap-3">
+        <Button disabled={submitting} arrow={!submitting}>
+          {submitting ? "Drawing your route…" : submitLabel}
+        </Button>
+        {submitting && (
+          <span className="font-[var(--font-mono)] text-xs text-muted">
+            this takes a few seconds
+          </span>
+        )}
+        {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
       </div>
     </form>
   );

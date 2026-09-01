@@ -23,19 +23,26 @@ export default function EditTripPage({
   });
 
   return (
-    <main className="mx-auto max-w-2xl px-5 py-10">
-      <Link href={`/trips/${id}`} className="text-sm text-muted hover:text-foreground">
+    <main className="mx-auto max-w-2xl px-6 py-14 md:pl-24">
+      <Link
+        href={`/trips/${id}`}
+        className="font-[var(--font-mono)] text-xs uppercase tracking-[0.14em] text-muted transition-colors hover:text-foreground"
+      >
         ← Back to trip
       </Link>
-      <h1 className="mt-2 mb-6 text-2xl font-bold">Edit trip details</h1>
+      <h1 className="mb-8 mt-6 font-[var(--font-display)] text-4xl font-normal tracking-tight">
+        Edit details
+      </h1>
 
       {isLoading && (
         <div className="space-y-4">
-          <Skeleton className="h-40 w-full" />
-          <Skeleton className="h-40 w-full" />
+          <Skeleton className="h-44 w-full" />
+          <Skeleton className="h-44 w-full" />
         </div>
       )}
-      {error && <p className="text-sm text-danger">Could not load this trip.</p>}
+      {error && (
+        <p className="text-sm text-[var(--danger)]">Could not load this trip.</p>
+      )}
 
       {trip && (
         <>
@@ -49,9 +56,9 @@ export default function EditTripPage({
               router.push(`/trips/${id}`);
             }}
           />
-          <p className="mt-4 text-sm text-muted">
-            Saving details doesn&apos;t rewrite the itinerary — use Regenerate on the trip
-            page for that (your edited days are kept).
+          <p className="mt-5 font-[var(--font-mono)] text-xs leading-relaxed text-muted">
+            Saving details doesn&apos;t rewrite the itinerary — use Regenerate on the
+            trip page for that. Your edited days are kept.
           </p>
         </>
       )}

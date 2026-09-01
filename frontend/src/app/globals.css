@@ -2,7 +2,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Semantic tokens -> Tailwind utilities (bg-surface, text-muted, border-border, ...) */
+/* ============================================================================
+   Glacier — Wander design system
+   Palette: pearl · silver · sky · icy lake.  Material: liquid glass (chrome only).
+   ========================================================================== */
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -10,63 +14,118 @@
   --color-border: var(--border);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-foreground: var(--primary-foreground);
+
+  --color-primary: var(--lake);
+  --color-primary-hover: var(--lake-hover);
+  --color-primary-foreground: #ffffff;
+  --color-lake: var(--lake);
+  --color-lake-deep: var(--lake-deep);
+  --color-sky: var(--sky);
+  --color-silver: var(--border);
+
   --color-danger: var(--danger);
   --color-success: var(--success);
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  --radius-xl: 0.9rem;
+  --font-display: var(--font-display-stack);
+  --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
+
+  --radius-lg: 22px;
+  --radius-xl: 28px;
 }
 
 :root {
-  --background: #f7f7f8;
+  /* neutrals */
+  --background: #f5f8fa;
   --surface: #ffffff;
-  --surface-2: #f1f1f4;
-  --border: #e3e3e8;
-  --foreground: #16161a;
-  --muted: #6b6b75;
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-foreground: #ffffff;
-  --danger: #dc2626;
-  --success: #16a34a;
+  --surface-2: #eef3f6;
+  --border: #d3dce2;
+  --foreground: #333f49;
+  --muted: #697884;
+
+  /* accents */
+  --lake: #2c7da0;
+  --lake-hover: #226b8b;
+  --lake-deep: #17516d;
+  --sky: #9ad0ec;
+
+  --danger: #c2453f;
+  --success: #2f8f6b;
+
+  /* glass material */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --glass-blur: 18px;
+  --shadow-soft: 0 10px 40px -12px rgba(23, 60, 82, 0.18);
+  --shadow-glass: 0 12px 40px -10px rgba(23, 60, 82, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+
+  /* type stacks — next/font vars with graceful fallbacks */
+  --font-display-stack: var(--font-display-next), var(--font-sans-next),
+    ui-sans-serif, system-ui, sans-serif;
+  --font-sans-stack: var(--font-sans-next), ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono-stack: var(--font-mono-next), ui-monospace, "SFMono-Regular", Menlo,
+    monospace;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 560ms;
+
+  color-scheme: light;
 }
 
 .dark {
-  --background: #0b0b0f;
-  --surface: #151519;
-  --surface-2: #1e1e24;
-  --border: #2a2a31;
-  --foreground: #ededf0;
-  --muted: #9a9aa5;
-  --primary: #6366f1;
-  --primary-hover: #7c7ff5;
-  --primary-foreground: #ffffff;
-  --danger: #f87171;
-  --success: #4ade80;
+  --background: #0d1317;
+  --surface: #141d23;
+  --surface-2: #1b262d;
+  --border: #2b373f;
+  --foreground: #e7eef2;
+  --muted: #93a2ad;
+
+  --lake: #4fa8cb;
+  --lake-hover: #6bbcdb;
+  --lake-deep: #7cc4de;
+  --sky: #bce0f2;
+
+  --danger: #ec6a63;
+  --success: #59b892;
+
+  --glass-bg: rgba(20, 29, 35, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --shadow-soft: 0 10px 40px -12px rgba(0, 0, 0, 0.5);
+  --shadow-glass: 0 12px 40px -10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
-    --background: #0b0b0f;
-    --surface: #151519;
-    --surface-2: #1e1e24;
-    --border: #2a2a31;
-    --foreground: #ededf0;
-    --muted: #9a9aa5;
-    --primary: #6366f1;
-    --primary-hover: #7c7ff5;
-    --primary-foreground: #ffffff;
-    --danger: #f87171;
-    --success: #4ade80;
+    --background: #0d1317;
+    --surface: #141d23;
+    --surface-2: #1b262d;
+    --border: #2b373f;
+    --foreground: #e7eef2;
+    --muted: #93a2ad;
+    --lake: #4fa8cb;
+    --lake-hover: #6bbcdb;
+    --lake-deep: #7cc4de;
+    --sky: #bce0f2;
+    --danger: #ec6a63;
+    --success: #59b892;
+    --glass-bg: rgba(20, 29, 35, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --shadow-soft: 0 10px 40px -12px rgba(0, 0, 0, 0.5);
+    --shadow-glass: 0 12px 40px -10px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    color-scheme: dark;
   }
 }
 
-html {
-  color-scheme: light dark;
+/* --------------------------------------------------------------- base ------ */
+* {
+  border-color: var(--border);
 }
 
 body {
@@ -74,9 +133,43 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
 }
 
-/* Form controls inherit theme by default */
+/* Ambient glacier field — faint sky/lake light, sits behind everything */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60rem 40rem at 78% -8%,
+      color-mix(in oklab, var(--sky) 32%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      48rem 34rem at -6% 42%,
+      color-mix(in oklab, var(--lake) 16%, transparent),
+      transparent 68%
+    );
+  opacity: 0.7;
+}
+
+.dark body::before {
+  opacity: 0.35;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
 input,
 select,
 textarea,
@@ -85,40 +178,216 @@ button {
   color: inherit;
 }
 
+::selection {
+  background: color-mix(in oklab, var(--sky) 55%, transparent);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--lake);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* -------------------------------------------------------------- glass ----- */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.6);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.6);
+  box-shadow: var(--shadow-glass);
+}
+
+/* Opaque fallback where translucency is unsupported or unwanted */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--surface);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* -------------------------------------------------------- mono eyebrow ---- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* --------------------------------------------------- scroll reveal -------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal[data-shown="true"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* -------------------------------------------------------- compass -------- */
+.wander-compass-needle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: compass-drift 7s ease-in-out infinite;
+}
+
+@keyframes compass-drift {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+a:hover .wander-compass-needle,
+button:hover .wander-compass-needle {
+  animation: none;
+  transform: rotate(0deg);
+  transition: transform 0.9s var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wander-compass-needle {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------- trail -------- */
+.trail-gutter {
+  position: fixed;
+  top: 0;
+  left: clamp(10px, 3.2vw, 46px);
+  height: 100vh;
+  width: 44px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .trail-gutter {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------- load sequence ------ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 760ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
+
+/* draw-in underline for the hero accent word */
+@keyframes draw-underline {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.hero-underline path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw-underline 900ms var(--ease-out) 600ms forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-underline path {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}
+
+/* -------------------------------------------------------- skeleton -------- */
 @keyframes skeleton-pulse {
   0%,
   100% {
     opacity: 1;
   }
   50% {
-    opacity: 0.45;
+    opacity: 0.5;
   }
 }
 
 .skeleton {
   background: var(--surface-2);
-  border-radius: 0.5rem;
-  animation: skeleton-pulse 1.4s ease-in-out infinite;
+  border-radius: 12px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* ----------------------------------------------------------- print -------- */
 @media print {
   :root {
     --background: #ffffff;
     --surface: #ffffff;
     --surface-2: #ffffff;
     --border: #cccccc;
-    --foreground: #000000;
+    --foreground: #101418;
     --muted: #444444;
   }
-  body {
+  body::before {
+    display: none;
+  }
+  .glass {
     background: #fff;
+    box-shadow: none;
+    backdrop-filter: none;
   }
-  a[href]::after {
-    content: "";
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
   }
-  section[id^="day-"] {
-    break-inside: avoid;
-  }
+  section[id^="day-"],
   li {
     break-inside: avoid;
   }

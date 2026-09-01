@@ -35,16 +35,19 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
 
   if (isLoading)
     return (
-      <main className="mx-auto max-w-3xl px-5 py-10">
+      <main className="mx-auto max-w-3xl px-6 py-14 md:pl-24">
         <ItinerarySkeleton />
       </main>
     );
 
   if (error || !trip)
     return (
-      <main className="mx-auto max-w-3xl px-5 py-10">
-        <p className="text-sm text-danger">Could not load this trip.</p>
-        <Link href="/trips" className="mt-2 inline-block text-sm text-primary">
+      <main className="mx-auto max-w-3xl px-6 py-14 md:pl-24">
+        <p className="text-sm text-[var(--danger)]">Could not load this trip.</p>
+        <Link
+          href="/trips"
+          className="mt-2 inline-block font-[var(--font-mono)] text-xs uppercase tracking-[0.14em] text-[var(--lake)]"
+        >
           ← My trips
         </Link>
       </main>
@@ -59,20 +62,22 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
   const over = budget != null && estTotal > budget;
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-10">
+    <main className="mx-auto max-w-3xl px-6 py-14 md:pl-24">
       <Link
         href="/trips"
-        className="text-sm text-muted hover:text-foreground print:hidden"
+        className="font-[var(--font-mono)] text-xs uppercase tracking-[0.14em] text-muted transition-colors hover:text-foreground print:hidden"
       >
         ← My trips
       </Link>
 
-      <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+      <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">{trip.destination}</h1>
-          <p className="mt-1 text-sm text-muted">
+          <h1 className="font-[var(--font-display)] text-[clamp(2rem,5vw,3rem)] font-normal leading-tight tracking-tight">
+            {trip.destination}
+          </h1>
+          <p className="mt-2 font-[var(--font-mono)] text-xs uppercase tracking-[0.12em] text-muted">
             {trip.start_date} → {trip.end_date} · {trip.num_travelers} traveller
-            {trip.num_travelers > 1 ? "s" : ""} · {trip.travel_style} · {trip.pace} pace
+            {trip.num_travelers > 1 ? "s" : ""} · {trip.travel_style} · {trip.pace}
           </p>
         </div>
         <div className="flex flex-wrap gap-2 print:hidden">
@@ -102,21 +107,27 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
         </div>
       </div>
 
-      {/* Budget bar */}
-      <div className="mt-5 rounded-xl border border-border bg-surface p-4">
+      {/* Budget — elevation line */}
+      <div className="glass mt-6 rounded-[20px] p-4">
         <div className="flex items-baseline justify-between text-sm">
-          <span className="text-muted">Estimated cost</span>
-          <span className={over ? "font-semibold text-danger" : "font-semibold"}>
+          <span className="font-[var(--font-mono)] text-xs uppercase tracking-[0.14em] text-muted">
+            Estimated cost
+          </span>
+          <span
+            className={`font-[var(--font-mono)] ${over ? "text-[var(--danger)]" : ""}`}
+          >
             {trip.currency} {estTotal.toFixed(0)}
             {budget != null && (
-              <span className="font-normal text-muted"> of {budget}</span>
+              <span className="text-muted"> / {budget}</span>
             )}
           </span>
         </div>
         {budget != null && (
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-2">
+          <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-surface-2">
             <div
-              className={`h-full rounded-full ${over ? "bg-danger" : "bg-primary"}`}
+              className={`h-full rounded-full transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                over ? "bg-[var(--danger)]" : "bg-[var(--lake)]"
+              }`}
               style={{ width: `${Math.max(pct, 2)}%` }}
             />
           </div>
@@ -130,12 +141,12 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
       )}
 
       {trip.days.length > 1 && (
-        <nav className="mt-4 flex flex-wrap gap-2 text-sm print:hidden">
+        <nav className="mt-5 flex flex-wrap gap-2 print:hidden">
           {trip.days.map((d) => (
             <a
               key={d.id}
               href={`#day-${d.day_index}`}
-              className="rounded-full border border-border px-3 py-1 text-muted hover:text-foreground"
+              className="rounded-full border border-border px-3 py-1 font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.12em] text-muted transition-colors hover:border-[var(--lake)] hover:text-foreground"
             >
               Day {d.day_index}
             </a>
@@ -144,12 +155,12 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
       )}
 
       {regenerate.isError && (
-        <p className="mt-4 text-sm text-danger">
+        <p className="mt-4 text-sm text-[var(--danger)]">
           Generation failed: {(regenerate.error as Error).message}
         </p>
       )}
 
-      <div className="mt-8 space-y-10">
+      <div className="mt-10 space-y-12">
         {trip.days.map((day) => (
           <DaySection
             key={day.id}
@@ -160,11 +171,15 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
           />
         ))}
         {trip.days.length === 0 && (
-          <div className="rounded-xl border border-dashed border-border bg-surface p-8 text-center text-sm text-muted">
+          <div className="glass rounded-[24px] p-10 text-center text-sm text-muted">
             No itinerary yet.
-            <div className="mt-3">
-              <Button onClick={() => regenerate.mutate()} disabled={regenerate.isPending}>
-                {regenerate.isPending ? "Generating…" : "Generate itinerary"}
+            <div className="mt-4">
+              <Button
+                onClick={() => regenerate.mutate()}
+                disabled={regenerate.isPending}
+                arrow={!regenerate.isPending}
+              >
+                {regenerate.isPending ? "Drawing your route…" : "Generate itinerary"}
               </Button>
             </div>
           </div>
