@@ -6,6 +6,18 @@ import { Button } from "@/components/ui/Button";
 import { controlClass } from "@/components/ui/Field";
 import { createClient } from "@/lib/supabase/client";
 
+function friendly(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("anonymous")) return "Enter an email and a password (6+ characters).";
+  if (m.includes("invalid login credentials"))
+    return "Wrong email or password. New here? Tap Create account.";
+  if (m.includes("already registered") || m.includes("already been registered"))
+    return "That email already has an account — use Sign in.";
+  if (m.includes("password") && m.includes("6"))
+    return "Password must be at least 6 characters.";
+  return message;
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,22 +36,26 @@ function LoginForm() {
       : null,
   );
 
-  function client() {
-    return createClient();
+  function invalidCreds(): string | null {
+    if (!email.trim()) return "Enter your email.";
+    if (password.length < 6) return "Password must be at least 6 characters.";
+    return null;
   }
 
-  async function run(fn: () => Promise<{ error: { message: string } | null }>) {
+  async function run(
+    fn: () => Promise<{ error: { message: string } | null }>,
+  ): Promise<boolean> {
     setError(null);
     setBusy(true);
     try {
       const { error } = await fn();
       if (error) {
-        setError(error.message);
+        setError(friendly(error.message));
         return false;
       }
       return true;
     } catch {
-      setError("Supabase isn't configured — add NEXT_PUBLIC_SUPABASE_* to .env.local.");
+      setError("Auth service unavailable. Please try again in a moment.");
       return false;
     } finally {
       setBusy(false);
@@ -48,7 +64,11 @@ function LoginForm() {
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
-    const ok = await run(() => client().auth.signInWithPassword({ email, password }));
+    const bad = invalidCreds();
+    if (bad) return setError(bad);
+    const ok = await run(() =>
+      createClient().auth.signInWithPassword({ email: email.trim(), password }),
+    );
     if (ok) {
       router.push(next);
       router.refresh();
@@ -56,7 +76,11 @@ function LoginForm() {
   }
 
   async function signUp() {
-    const ok = await run(() => client().auth.signUp({ email, password }));
+    const bad = invalidCreds();
+    if (bad) return setError(bad);
+    const ok = await run(() =>
+      createClient().auth.signUp({ email: email.trim(), password }),
+    );
     if (ok) {
       router.push(next);
       router.refresh();
@@ -64,9 +88,10 @@ function LoginForm() {
   }
 
   async function sendMagicLink() {
+    if (!email.trim()) return setError("Enter your email first.");
     const ok = await run(() =>
-      client().auth.signInWithOtp({
-        email,
+      createClient().auth.signInWithOtp({
+        email: email.trim(),
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
@@ -75,28 +100,18 @@ function LoginForm() {
     if (ok) setLinkSent(true);
   }
 
-  async function signInWithGoogle() {
-    await run(async () => {
-      await client().auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-        },
-      });
-      return { error: null };
-    });
-  }
-
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-5">
       <div className="rounded-xl border border-border bg-surface p-6">
         <h1 className="text-xl font-bold">Sign in</h1>
-        <p className="mt-1 text-sm text-muted">to save and edit your trips</p>
+        <p className="mt-1 text-sm text-muted">
+          to save and edit your trips — no email confirmation needed
+        </p>
 
         <form onSubmit={signIn} className="mt-6 space-y-3">
           <input
             type="email"
-            required
+            autoComplete="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -104,8 +119,7 @@ function LoginForm() {
           />
           <input
             type="password"
-            required
-            minLength={6}
+            autoComplete="current-password"
             placeholder="Password (6+ characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -128,22 +142,18 @@ function LoginForm() {
         </form>
 
         <div className="my-4 flex items-center gap-3 text-xs text-muted">
-          <span className="h-px flex-1 bg-border" /> or <span className="h-px flex-1 bg-border" />
+          <span className="h-px flex-1 bg-border" /> or{" "}
+          <span className="h-px flex-1 bg-border" />
         </div>
 
-        <div className="space-y-2">
-          <Button
-            variant="secondary"
-            className="w-full"
-            disabled={busy || !email}
-            onClick={sendMagicLink}
-          >
-            {linkSent ? "Magic link sent — check your email" : "Email me a magic link"}
-          </Button>
-          <Button variant="secondary" className="w-full" onClick={signInWithGoogle}>
-            Continue with Google
-          </Button>
-        </div>
+        <Button
+          variant="secondary"
+          className="w-full"
+          disabled={busy || !email.trim()}
+          onClick={sendMagicLink}
+        >
+          {linkSent ? "Magic link sent — check your email" : "Email me a magic link"}
+        </Button>
 
         {error && <p className="mt-4 text-sm text-danger">{error}</p>}
       </div>
