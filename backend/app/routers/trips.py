@@ -36,8 +36,6 @@ async def create_trip(
     user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> Trip:
-    if payload.end_date < payload.start_date:
-        raise HTTPException(422, "end_date must be on or after start_date")
     trip = Trip(user_id=user.id, **payload.model_dump())
     db.add(trip)
     await db.commit()

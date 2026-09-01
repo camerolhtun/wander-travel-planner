@@ -7,6 +7,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { ItinerarySkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
 import { tripCache } from "@/lib/tripCache";
+import { CostSummary } from "./CostSummary";
 import { DaySection } from "./DaySection";
 
 export function ItineraryEditor({ tripId }: { tripId: string }) {
@@ -59,7 +60,10 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-10">
-      <Link href="/trips" className="text-sm text-muted hover:text-foreground">
+      <Link
+        href="/trips"
+        className="text-sm text-muted hover:text-foreground print:hidden"
+      >
         ← My trips
       </Link>
 
@@ -71,7 +75,10 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
             {trip.num_travelers > 1 ? "s" : ""} · {trip.travel_style} · {trip.pace} pace
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 print:hidden">
+          <Button variant="ghost" size="sm" onClick={() => window.print()}>
+            Print
+          </Button>
           <ButtonLink href={`/trips/${tripId}/edit`} variant="secondary" size="sm">
             Edit details
           </ButtonLink>
@@ -116,8 +123,14 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
         )}
       </div>
 
+      {trip.days.length > 0 && (
+        <div className="mt-3">
+          <CostSummary trip={trip} />
+        </div>
+      )}
+
       {trip.days.length > 1 && (
-        <nav className="mt-4 flex flex-wrap gap-2 text-sm">
+        <nav className="mt-4 flex flex-wrap gap-2 text-sm print:hidden">
           {trip.days.map((d) => (
             <a
               key={d.id}

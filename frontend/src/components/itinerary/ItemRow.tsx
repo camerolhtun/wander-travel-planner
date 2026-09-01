@@ -156,7 +156,7 @@ export function ItemRow({
           )}
         </div>
 
-        <div className="flex shrink-0 flex-col items-end gap-1">
+        <div className="flex shrink-0 flex-col items-end gap-1 print:hidden">
           <div className="flex gap-0.5">
             <button
               onClick={() => onMove(-1)}
@@ -178,7 +178,7 @@ export function ItemRow({
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted">
+      <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted print:hidden">
         <button onClick={() => setEditing(true)} className="hover:text-foreground">
           Edit
         </button>

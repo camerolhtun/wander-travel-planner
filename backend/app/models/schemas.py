@@ -2,11 +2,14 @@ import datetime as dt
 import uuid
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 TravelStyle = Literal["budget", "mid", "luxury"]
 Pace = Literal["relaxed", "moderate", "packed"]
 ItemCategory = Literal["attraction", "food", "activity", "transit", "rest"]
+
+MAX_TRIP_DAYS = 21
+MAX_TRAVELERS = 30
 
 
 # --------------------------------------------------------------------------- trips
@@ -14,12 +17,20 @@ class TripCreate(BaseModel):
     destination: str = Field(min_length=1, max_length=200)
     start_date: dt.date
     end_date: dt.date
-    budget_total: float | None = None
-    currency: str = "USD"
-    num_travelers: int = Field(default=1, ge=1)
+    budget_total: float | None = Field(default=None, ge=0)
+    currency: str = Field(default="USD", min_length=1, max_length=3)
+    num_travelers: int = Field(default=1, ge=1, le=MAX_TRAVELERS)
     interests: list[str] = Field(default_factory=list)
     travel_style: TravelStyle = "mid"
     pace: Pace = "moderate"
+
+    @model_validator(mode="after")
+    def _check_dates(self) -> "TripCreate":
+        if self.end_date < self.start_date:
+            raise ValueError("end_date must be on or after start_date")
+        if (self.end_date - self.start_date).days + 1 > MAX_TRIP_DAYS:
+            raise ValueError(f"trip length is capped at {MAX_TRIP_DAYS} days")
+        return self
 
 
 class TripUpdate(BaseModel):

@@ -43,6 +43,16 @@ async def test_unauthenticated_is_rejected(client):
     assert (await client.get("/trips")).status_code == 401
 
 
+async def test_rejects_backwards_dates(client, auth_headers):
+    bad = {**TRIP_PAYLOAD, "start_date": "2026-12-07", "end_date": "2026-12-05"}
+    assert (await client.post("/trips", json=bad, headers=auth_headers)).status_code == 422
+
+
+async def test_rejects_overlong_trip(client, auth_headers):
+    bad = {**TRIP_PAYLOAD, "start_date": "2026-12-01", "end_date": "2027-01-15"}
+    assert (await client.post("/trips", json=bad, headers=auth_headers)).status_code == 422
+
+
 async def test_edit_item_then_regenerate_preserves_day(client, auth_headers):
     detail = await _create_and_generate(client, auth_headers)
     day1 = detail["days"][0]

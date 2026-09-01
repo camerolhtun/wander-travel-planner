@@ -30,8 +30,17 @@ export function TripForm({
     setSubmitting(true);
     setError(null);
     const form = new FormData(e.currentTarget);
-    if (String(form.get("end_date")) < String(form.get("start_date"))) {
+    const start = String(form.get("start_date"));
+    const end = String(form.get("end_date"));
+    if (end < start) {
       setError("End date must be on or after the start date.");
+      setSubmitting(false);
+      return;
+    }
+    const days =
+      Math.round((Date.parse(end) - Date.parse(start)) / 86_400_000) + 1;
+    if (days > 21) {
+      setError("Trips are capped at 21 days.");
       setSubmitting(false);
       return;
     }

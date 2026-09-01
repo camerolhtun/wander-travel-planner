@@ -128,7 +128,7 @@ export function DaySection({
           {day.summary || <span className="italic">No summary</span>}{" "}
           <button
             onClick={() => setEditingSummary(true)}
-            className="text-primary hover:underline"
+            className="text-primary hover:underline print:hidden"
           >
             edit
           </button>
@@ -205,7 +205,7 @@ export function DaySection({
       ) : (
         <button
           onClick={() => setAdding(true)}
-          className="mt-3 rounded-lg border border-dashed border-border px-3 py-1.5 text-sm text-muted hover:text-foreground"
+          className="mt-3 rounded-lg border border-dashed border-border px-3 py-1.5 text-sm text-muted hover:text-foreground print:hidden"
         >
           + Add item
         </button>
