@@ -17,7 +17,7 @@ export function HeroPlanner() {
   return (
     <section className="relative overflow-hidden">
       <ContourField />
-      <div className="mx-auto flex min-h-[calc(100svh-5rem)] max-w-5xl flex-col justify-center px-6 py-16 md:pl-24">
+      <div className="mx-auto max-w-5xl px-6 pb-20 pt-[14vh] md:pl-24">
         <p className="eyebrow rise" style={{ animationDelay: "0ms" }}>
           Wander — AI itinerary planner
         </p>
