@@ -7,9 +7,9 @@ import { prefersReducedMotion } from "@/lib/motion";
 import { Reveal } from "@/components/ui/Reveal";
 
 const INTERESTS = [
-  { name: "Beach", img: "/int-beach.jpg", count: 24, icon: "◐" },
-  { name: "Mountain", img: "/int-mountain.jpg", count: 18, icon: "▲" },
-  { name: "Culture", img: "/int-culture.jpg", count: 32, icon: "◆" },
+  { name: "Beach", img: "/int-beach.jpg", icon: "◐" },
+  { name: "Mountain", img: "/int-mountain.jpg", icon: "▲" },
+  { name: "Culture", img: "/int-culture.jpg", icon: "◆" },
 ];
 
 export function TravelByInterest() {
@@ -41,14 +41,14 @@ export function TravelByInterest() {
   }
 
   return (
-    <section className="border-t border-border px-6 py-24">
+    <section id="interests" className="scroll-mt-24 border-t border-border px-6 py-24">
       <div className="mx-auto max-w-6xl">
         <Reveal className="text-center">
           <h2 className="font-[var(--font-display)] text-[clamp(2rem,4.5vw,3.25rem)] font-semibold tracking-tight">
             Travel by interest
           </h2>
           <p className="mx-auto mt-3 max-w-md text-muted">
-            Discover destinations tailored to your passions.
+            Fresh stories from around the web to spark your next trip.
           </p>
         </Reveal>
 
@@ -60,7 +60,7 @@ export function TravelByInterest() {
             {INTERESTS.map((it) => (
               <Link
                 key={it.name}
-                href="/trips/new"
+                href={`/explore/${it.name.toLowerCase()}`}
                 className="group relative aspect-[4/3] w-[86%] shrink-0 snap-start overflow-hidden rounded-[24px] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
               >
                 <Image
@@ -86,7 +86,7 @@ export function TravelByInterest() {
                     {it.name}
                   </h3>
                   <p className="mt-1 font-[var(--font-mono)] text-xs uppercase tracking-[0.12em] text-white/75">
-                    {it.count} destinations
+                    Trending stories
                   </p>
                   <span className="mt-2 inline-flex items-center gap-1 font-[var(--font-mono)] text-xs uppercase tracking-[0.12em] transition-transform duration-200 group-hover:translate-x-0.5">
                     Explore →

@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     # Disabled in tests so generation stays offline.
     fx_rates_enabled: bool = True
 
+    # Travel-blog RSS aggregation for the /inspiration pages (no key).
+    inspiration_enabled: bool = True
+
     cors_origins: list[str] = ["http://localhost:3000"]
 
     @property

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import type {
+  Article,
   ItineraryDay,
   ItineraryItem,
   Trip,
@@ -72,4 +73,8 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ items }),
     }),
+
+  // Landing — travel-blog inspiration by interest
+  listInspiration: (interest: string) =>
+    request<Article[]>(`/inspiration/${encodeURIComponent(interest)}`),
 };

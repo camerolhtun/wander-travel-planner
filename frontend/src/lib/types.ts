@@ -27,6 +27,15 @@ export interface Photo {
   attribution: string | null;
 }
 
+export interface Article {
+  title: string;
+  url: string;
+  source: string;
+  summary: string | null;
+  image: string | null;
+  published_at: string | null;
+}
+
 export interface ItineraryItem {
   id: string;
   day_id: string;

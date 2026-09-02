@@ -158,6 +158,16 @@ class ReorderRequest(BaseModel):
     items: list[ReorderEntry]
 
 
+# ------------------------------------------------------------------- inspiration
+class ArticleOut(BaseModel):
+    title: str
+    url: str
+    source: str
+    summary: str | None = None
+    image: str | None = None
+    published_at: str | None = None
+
+
 # ------------------------------------------------------- LLM generation schema
 class GeneratedItem(BaseModel):
     title: str
