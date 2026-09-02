@@ -191,7 +191,7 @@ export function DateRangeField({
         <div
           role="dialog"
           aria-label="Choose travel dates"
-          className={`glass absolute left-0 z-50 max-h-[calc(100dvh-2rem)] w-[19.5rem] overflow-y-auto rounded-[20px] p-3 text-foreground ${
+          className={`glass-solid absolute left-0 z-50 max-h-[calc(100dvh-2rem)] w-[19.5rem] overflow-y-auto rounded-[20px] p-3 text-foreground ${
             placement === "top" ? "bottom-full mb-3" : "top-full mt-3"
           }`}
         >
