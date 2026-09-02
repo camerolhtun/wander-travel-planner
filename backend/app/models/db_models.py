@@ -35,6 +35,10 @@ class Trip(Base):
     travel_style: Mapped[str] = mapped_column(String(20), default="mid", server_default="mid")
     pace: Mapped[str] = mapped_column(String(20), default="moderate", server_default="moderate")
     notes: Mapped[str | None] = mapped_column(Text)
+    # Destination's local currency + a snapshot rate (local units per 1 `currency`),
+    # captured at generation time for dual-currency display.
+    local_currency: Mapped[str | None] = mapped_column(String(3))
+    fx_rate: Mapped[float | None] = mapped_column(Numeric(18, 6))
     status: Mapped[str] = mapped_column(String(20), default="draft", server_default="draft")
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

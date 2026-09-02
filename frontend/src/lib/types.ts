@@ -15,6 +15,8 @@ export interface Trip {
   travel_style: TravelStyle;
   pace: Pace;
   notes: string | null;
+  local_currency: string | null;
+  fx_rate: number | null;
   status: string;
   created_at: string;
   updated_at: string;

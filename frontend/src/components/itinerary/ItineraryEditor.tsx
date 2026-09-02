@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ItinerarySkeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/api";
+import { moneyDual } from "@/lib/money";
 import { tripCache } from "@/lib/tripCache";
 import { CostSummary } from "./CostSummary";
 import { DaySection } from "./DaySection";
@@ -116,7 +117,7 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
           <span
             className={`font-[var(--font-mono)] ${over ? "text-[var(--danger)]" : ""}`}
           >
-            {trip.currency} {estTotal.toFixed(0)}
+            {moneyDual(estTotal, trip.currency, trip.local_currency, trip.fx_rate)}
             {budget != null && (
               <span className="text-muted"> / {budget}</span>
             )}
@@ -178,6 +179,8 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
             day={day}
             tripId={tripId}
             currency={trip.currency}
+            localCurrency={trip.local_currency}
+            fxRate={trip.fx_rate}
             destination={trip.destination}
           />
         ))}

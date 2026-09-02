@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CATEGORY_META } from "@/lib/categories";
 import { ITEM_CATEGORIES } from "@/lib/constants";
+import { localMoney, money } from "@/lib/money";
 import type { TripDetail } from "@/lib/types";
 
 export function CostSummary({ trip }: { trip: TripDetail }) {
@@ -20,7 +21,9 @@ export function CostSummary({ trip }: { trip: TripDetail }) {
       .reduce((s, i) => s + (i.est_cost ?? 0), 0),
   })).filter((r) => r.amount > 0);
 
-  const fmt = (n: number) => `${trip.currency} ${n.toFixed(0)}`;
+  const fmt = (n: number) => money(n, trip.currency);
+  const sub = (n: number) =>
+    localMoney(n, trip.currency, trip.local_currency, trip.fx_rate);
 
   return (
     <div className="glass rounded-[20px]">
@@ -34,9 +37,9 @@ export function CostSummary({ trip }: { trip: TripDetail }) {
 
       <div className={open ? "block" : "hidden print:block"}>
         <div className="grid grid-cols-3 divide-x divide-[var(--border)] border-t border-border text-center">
-          <Stat label="Total" value={fmt(total)} />
-          <Stat label="Per person" value={fmt(perPerson)} />
-          <Stat label="Per day" value={fmt(total / days)} />
+          <Stat label="Total" value={fmt(total)} sub={sub(total)} />
+          <Stat label="Per person" value={fmt(perPerson)} sub={sub(perPerson)} />
+          <Stat label="Per day" value={fmt(total / days)} sub={sub(total / days)} />
         </div>
 
         {byCategory.length > 0 && (
@@ -68,13 +71,26 @@ export function CostSummary({ trip }: { trip: TripDetail }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub?: string | null;
+}) {
   return (
     <div className="px-2 py-3.5">
       <div className="font-[var(--font-mono)] text-[0.65rem] uppercase tracking-[0.14em] text-muted">
         {label}
       </div>
       <div className="mt-1 font-[var(--font-mono)] text-sm tabular-nums">{value}</div>
+      {sub && (
+        <div className="mt-0.5 font-[var(--font-mono)] text-[0.7rem] tabular-nums text-muted">
+          {sub}
+        </div>
+      )}
     </div>
   );
 }

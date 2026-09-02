@@ -7,6 +7,7 @@ import { controlClassSm } from "@/components/ui/Field";
 import { api } from "@/lib/api";
 import { CATEGORY_META } from "@/lib/categories";
 import { ITEM_CATEGORIES } from "@/lib/constants";
+import { moneyDual } from "@/lib/money";
 import { tripCache } from "@/lib/tripCache";
 import type { ItineraryDay } from "@/lib/types";
 import { ItemRow } from "./ItemRow";
@@ -15,11 +16,15 @@ export function DaySection({
   day,
   tripId,
   currency,
+  localCurrency,
+  fxRate,
   destination,
 }: {
   day: ItineraryDay;
   tripId: string;
   currency: string;
+  localCurrency?: string | null;
+  fxRate?: number | null;
   destination: string;
 }) {
   const queryClient = useQueryClient();
@@ -81,7 +86,7 @@ export function DaySection({
         <span
           className={`font-[var(--font-mono)] text-xs ${overDay ? "text-[var(--danger)]" : "text-muted"}`}
         >
-          {currency} {dayCost.toFixed(0)}
+          {moneyDual(dayCost, currency, localCurrency, fxRate)}
           {day.est_budget != null && ` / ${day.est_budget}`}
         </span>
       </div>
@@ -144,6 +149,8 @@ export function DaySection({
             item={item}
             tripId={tripId}
             currency={currency}
+            localCurrency={localCurrency}
+            fxRate={fxRate}
             destination={destination}
             isFirst={index === 0}
             isLast={index === day.items.length - 1}

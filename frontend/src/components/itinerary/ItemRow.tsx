@@ -7,6 +7,7 @@ import { controlClassSm } from "@/components/ui/Field";
 import { api } from "@/lib/api";
 import { CATEGORY_META } from "@/lib/categories";
 import { ITEM_CATEGORIES, mapsSearchUrl } from "@/lib/constants";
+import { moneyDual } from "@/lib/money";
 import { tripCache } from "@/lib/tripCache";
 import type { ItineraryItem } from "@/lib/types";
 
@@ -14,6 +15,8 @@ export function ItemRow({
   item,
   tripId,
   currency,
+  localCurrency,
+  fxRate,
   destination,
   isFirst,
   isLast,
@@ -22,6 +25,8 @@ export function ItemRow({
   item: ItineraryItem;
   tripId: string;
   currency: string;
+  localCurrency?: string | null;
+  fxRate?: number | null;
   destination: string;
   isFirst: boolean;
   isLast: boolean;
@@ -153,7 +158,7 @@ export function ItemRow({
             {timeLabel && <span className="text-muted">{timeLabel}</span>}
             {item.est_cost != null && (
               <span className="text-muted">
-                {currency} {item.est_cost}
+                {moneyDual(item.est_cost, currency, localCurrency, fxRate)}
               </span>
             )}
           </div>

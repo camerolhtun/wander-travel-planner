@@ -5,6 +5,7 @@ from datetime import datetime, time, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.db_models import ItineraryDay, ItineraryItem, Trip
+from app.services.fx import fetch_fx_rate, local_currency_for
 from app.services.gemini import generate_days
 from app.services.places import enrich_item
 
@@ -60,3 +61,19 @@ async def generate_itinerary(trip: Trip, db: AsyncSession) -> None:
             await enrich_item(item, trip.destination)
             day.items.append(item)
         trip.days.append(day)
+
+    await _snapshot_local_currency(trip)
+
+
+async def _snapshot_local_currency(trip: Trip) -> None:
+    """Record the destination's local currency + a live rate for dual display."""
+    trip_ccy = (trip.currency or "USD").upper()
+    local_ccy = local_currency_for(trip.destination)
+    if not local_ccy or local_ccy == trip_ccy:
+        trip.local_currency = None
+        trip.fx_rate = None
+        return
+    rate = await fetch_fx_rate(trip_ccy, local_ccy)
+    if rate:
+        trip.local_currency = local_ccy
+        trip.fx_rate = rate

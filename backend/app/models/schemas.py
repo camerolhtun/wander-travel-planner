@@ -123,6 +123,8 @@ class TripOut(BaseModel):
     travel_style: str
     pace: str
     notes: str | None = None
+    local_currency: str | None = None
+    fx_rate: float | None = None
     status: str
     created_at: dt.datetime
     updated_at: dt.datetime
