@@ -1,8 +1,9 @@
 """Best-effort place photos.
 
-Per item we gather a small gallery: real images from the matching Wikipedia
-article first, topped up with Unsplash search results (stock photos of the
-vibe) when an Unsplash key is configured.
+Per item we gather a small gallery. Unsplash results lead (nicer, more
+travel-inspiring shots) when a key is configured; images from the matching
+Wikipedia article follow — and jump ahead if Unsplash's best is much
+lower-resolution.
 
 ``fetch_photos`` returns ``[{"url": ..., "attribution": ...}, ...]`` (possibly
 empty). Never raises.
@@ -52,7 +53,9 @@ def _tokens(text: str) -> list[str]:
     return [t for t in re.split(r"[^a-z0-9]+", text.lower()) if len(t) >= 4]
 
 
-async def _wikipedia_lead(client: httpx.AsyncClient, place_name: str) -> tuple[str, str] | None:
+async def _wikipedia_lead(
+    client: httpx.AsyncClient, place_name: str
+) -> tuple[str, str, int] | None:
     try:
         resp = await client.get(
             _WIKI_API,
@@ -60,7 +63,7 @@ async def _wikipedia_lead(client: httpx.AsyncClient, place_name: str) -> tuple[s
                 "action": "query",
                 "prop": "pageimages",
                 "piprop": "original|thumbnail",
-                "pithumbsize": "1000",
+                "pithumbsize": "1400",
                 "format": "json",
                 "redirects": "1",
                 "titles": place_name.strip(),
@@ -76,17 +79,17 @@ async def _wikipedia_lead(client: httpx.AsyncClient, place_name: str) -> tuple[s
     except ValueError:
         return None
     for page in pages.values():
-        src = (page.get("thumbnail") or {}).get("source") or (
-            page.get("original") or {}
-        ).get("source")
-        if src:
-            return src, f"Wikipedia — {page.get('title') or place_name}"
+        for key in ("thumbnail", "originalimage"):
+            img = page.get(key) or {}
+            if img.get("source"):
+                title = page.get("title") or place_name
+                return img["source"], f"Wikipedia — {title}", img.get("width") or 0
     return None
 
 
 async def _wikipedia_gallery(
     client: httpx.AsyncClient, place_name: str, limit: int
-) -> list[tuple[str, str]]:
+) -> list[tuple[str, str, int]]:
     try:
         resp = await client.get(
             _WIKI_API,
@@ -136,17 +139,22 @@ async def _wikipedia_gallery(
         url = info.get("thumburl") or info.get("url")
         if not url:
             continue
+        # Effective rendered width — what actually reaches the browser.
+        eff_w = info.get("thumbwidth") or width
         name = title.removeprefix("File:")
-        scored.append((width, url, f"Wikimedia Commons — {name}"))
+        scored.append((eff_w, url, f"Wikimedia Commons — {name}"))
 
-    # Crispest (largest source) first.
+    # Crispest first.
     scored.sort(key=lambda t: t[0], reverse=True)
-    return [(url, attr) for _, url, attr in scored[:limit]]
+    return [(url, attr, w) for w, url, attr in scored[:limit]]
+
+
+_UNSPLASH_RENDER = 1400  # px wide we ask Unsplash's CDN to render
 
 
 async def _unsplash_gallery(
     client: httpx.AsyncClient, query: str, count: int
-) -> list[tuple[str, str]]:
+) -> list[tuple[str, str, int]]:
     key = get_settings().unsplash_access_key
     if not key or count <= 0:
         return []
@@ -170,24 +178,28 @@ async def _unsplash_gallery(
     except ValueError:
         return []
 
-    scored: list[tuple[int, str, str]] = []
+    scored: list[tuple[int, str, str, int]] = []
     for photo in results:
-        url = (photo.get("urls") or {}).get("regular")
+        urls = photo.get("urls") or {}
+        raw = urls.get("raw")
+        url = f"{raw}&w={_UNSPLASH_RENDER}&q=80&fm=jpg&fit=max" if raw else urls.get("regular")
         if not url:
             continue
         width = photo.get("width") or 0
         height = photo.get("height") or 1
-        if width < 1200:  # skip low-res uploads
+        if width < 800:  # genuinely small uploads only
             continue
         ratio = width / height
         if ratio < 0.9 or ratio > 2.2:  # skip portraits & panoramas
             continue
+        # Effective width the browser gets (Unsplash won't upscale past source).
+        eff_w = min(width, _UNSPLASH_RENDER)
         who = (photo.get("user") or {}).get("name") or "Unsplash"
-        scored.append((photo.get("likes") or 0, url, f"Photo by {who} on Unsplash"))
+        scored.append((photo.get("likes") or 0, url, f"Photo by {who} on Unsplash", eff_w))
 
     # Most-liked first — a decent proxy for "well-composed, not murky".
     scored.sort(key=lambda t: t[0], reverse=True)
-    return [(url, attr) for _, url, attr in scored[:count]]
+    return [(url, attr, w) for _, url, attr, w in scored[:count]]
 
 
 async def fetch_photos(
@@ -208,16 +220,26 @@ async def fetch_photos(
             out.append({"url": url, "attribution": attribution})
 
     async with httpx.AsyncClient(timeout=8, follow_redirects=True) as client:
+        wiki: list[tuple[str, str, int]] = []
         if name:
             lead = await _wikipedia_lead(client, name)
             if lead:
-                add(*lead)
-            for url, attr in await _wikipedia_gallery(client, name, limit):
-                add(url, attr)
+                wiki.append(lead)
+            wiki.extend(await _wikipedia_gallery(client, name, limit))
 
-        if len(out) < limit:
-            query = _clean_query(f"{name or category} {city}") or city or category
-            for url, attr in await _unsplash_gallery(client, query, limit - len(out)):
-                add(url, attr)
+        query = _clean_query(f"{name or category} {city}") or city or category
+        unsplash = await _unsplash_gallery(client, query, limit)
+
+        # Unsplash leads (nicer travel shots) unless its best image is much
+        # lower-res than what Wikipedia can offer — then Wikipedia goes first.
+        best_wiki_w = max((w for *_, w in wiki), default=0)
+        top_unsplash_w = unsplash[0][2] if unsplash else 0
+        unsplash_leads = bool(unsplash) and (
+            best_wiki_w == 0 or top_unsplash_w >= 0.65 * best_wiki_w
+        )
+        ordered = unsplash + wiki if unsplash_leads else wiki + unsplash
+
+    for url, attr, _w in ordered:
+        add(url, attr)
 
     return out[:limit]
