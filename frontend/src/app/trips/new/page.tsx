@@ -10,7 +10,15 @@ import { api } from "@/lib/api";
 function NewTrip() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const to = useSearchParams().get("to") ?? undefined;
+  const params = useSearchParams();
+  const initial = {
+    destination: params.get("to") ?? undefined,
+    start_date: params.get("start") ?? undefined,
+    end_date: params.get("end") ?? undefined,
+  };
+  const hasInitial = Boolean(
+    initial.destination || initial.start_date || initial.end_date,
+  );
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-14 md:pl-24">
@@ -28,7 +36,7 @@ function NewTrip() {
         Wander draws a day-by-day itinerary you can edit afterwards.
       </p>
       <TripForm
-        initial={to ? { destination: to } : undefined}
+        initial={hasInitial ? initial : undefined}
         submitLabel="Generate itinerary"
         onSubmit={async (values) => {
           const trip = await api.createTrip(values);
