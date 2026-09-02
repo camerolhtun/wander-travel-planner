@@ -105,69 +105,70 @@
    morning, and the Fuji hero wants light). */
 
 /* --------------------------------------------------------------- base ------ */
-* {
-  border-color: var(--border);
-}
+/* In @layer base so Tailwind utilities (later layer) always win. */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  overflow-x: hidden;
-}
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
 
-/* Ambient glacier field — faint sky/lake light, sits behind everything */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      60rem 40rem at 78% -8%,
-      color-mix(in oklab, var(--sky) 32%, transparent),
-      transparent 70%
-    ),
-    radial-gradient(
-      48rem 34rem at -6% 42%,
-      color-mix(in oklab, var(--lake) 16%, transparent),
-      transparent 68%
-    );
-  opacity: 0.7;
-}
+  /* Ambient glacier field — faint sky/lake light, sits behind everything */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        60rem 40rem at 78% -8%,
+        color-mix(in oklab, var(--sky) 32%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        48rem 34rem at -6% 42%,
+        color-mix(in oklab, var(--lake) 16%, transparent),
+        transparent 68%
+      );
+    opacity: 0.7;
+  }
 
-.dark body::before {
-  opacity: 0.35;
-}
+  .dark body::before {
+    opacity: 0.35;
+  }
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-}
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
 
-input,
-select,
-textarea,
-button {
-  font: inherit;
-  color: inherit;
-}
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
 
-::selection {
-  background: color-mix(in oklab, var(--sky) 55%, transparent);
-  color: var(--foreground);
-}
+  ::selection {
+    background: color-mix(in oklab, var(--sky) 55%, transparent);
+    color: var(--foreground);
+  }
 
-:focus-visible {
-  outline: 2px solid var(--lake);
-  outline-offset: 2px;
-  border-radius: 4px;
+  :focus-visible {
+    outline: 2px solid var(--lake);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 /* -------------------------------------------------------------- glass ----- */
