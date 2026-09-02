@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { CitySuggest } from "@/components/ui/CitySuggest";
+import { CurrencySuggest } from "@/components/ui/CurrencySuggest";
 import { DateRangeField } from "@/components/ui/DateRangeField";
 import { controlClass, Label, LabelText } from "@/components/ui/Field";
 import { INTEREST_OPTIONS } from "@/lib/constants";
@@ -23,6 +24,7 @@ export function TripForm({
   const [destination, setDestination] = useState(initial?.destination ?? "");
   const [startDate, setStartDate] = useState(initial?.start_date ?? "");
   const [endDate, setEndDate] = useState(initial?.end_date ?? "");
+  const [currency, setCurrency] = useState(initial?.currency ?? "USD");
 
   function toggleInterest(value: string) {
     setInterests((prev) =>
@@ -63,7 +65,7 @@ export function TripForm({
         start_date: startDate,
         end_date: endDate,
         budget_total: form.get("budget_total") ? Number(form.get("budget_total")) : null,
-        currency: String(form.get("currency") || "USD"),
+        currency: currency.trim().toUpperCase() || "USD",
         num_travelers: Number(form.get("num_travelers") || 1),
         interests,
         travel_style: String(form.get("travel_style")) as TravelStyle,
@@ -117,11 +119,10 @@ export function TripForm({
           </Label>
           <Label>
             <LabelText>Currency</LabelText>
-            <input
-              name="currency"
-              defaultValue={initial?.currency ?? "USD"}
-              className={controlClass}
-              maxLength={3}
+            <CurrencySuggest
+              value={currency}
+              onChange={setCurrency}
+              inputClassName={controlClass}
             />
           </Label>
           <Label className="col-span-2 sm:col-span-1">
