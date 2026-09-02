@@ -60,8 +60,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 px-4 pt-3 print:hidden">
       <nav
-        className={`mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 text-sm transition-shadow duration-300 ${
-          scrolled ? "glass" : "glass !bg-[color-mix(in_oklab,var(--surface)_35%,transparent)]"
+        className={`glass-nav mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 text-sm transition-shadow duration-300 ${
+          scrolled ? "shadow-[0_12px_32px_-18px_rgba(23,60,82,0.3)]" : ""
         }`}
       >
         <Link
