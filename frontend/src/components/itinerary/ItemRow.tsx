@@ -12,6 +12,7 @@ import { ITEM_CATEGORIES, mapsSearchUrl } from "@/lib/constants";
 import { moneyDual } from "@/lib/money";
 import { tripCache } from "@/lib/tripCache";
 import type { ItineraryItem } from "@/lib/types";
+import { PhotoLightbox } from "./PhotoLightbox";
 
 export function ItemRow({
   item,
@@ -37,7 +38,8 @@ export function ItemRow({
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [imgOk, setImgOk] = useState(true);
-  const [showPhotos, setShowPhotos] = useState(false);
+  const [showPhotos, setShowPhotos] = useState(true);
+  const [lightbox, setLightbox] = useState<number | null>(null);
   const meta = CATEGORY_META[item.category];
   const photos = item.photos ?? [];
 
@@ -238,13 +240,13 @@ export function ItemRow({
         <div className="mt-3">
           <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {photos.map((p, i) => (
-              <a
+              <button
                 key={p.url}
-                href={p.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                type="button"
+                onClick={() => setLightbox(i)}
                 title={p.attribution ?? undefined}
-                className="shrink-0"
+                aria-label={`Open photo ${i + 1} of ${photos.length}`}
+                className="shrink-0 cursor-pointer border-0 bg-transparent p-0"
               >
                 <img
                   src={p.url}
@@ -252,13 +254,23 @@ export function ItemRow({
                   loading="lazy"
                   className="h-32 w-48 rounded-xl border border-border object-cover transition-opacity hover:opacity-90"
                 />
-              </a>
+              </button>
             ))}
           </div>
           <p className="mt-1.5 font-[var(--font-mono)] text-[0.6rem] text-muted/70">
             {[...new Set(photos.map((p) => p.attribution).filter(Boolean))].join(" · ")}
           </p>
         </div>
+      )}
+
+      {lightbox !== null && photos.length > 0 && (
+        <PhotoLightbox
+          photos={photos}
+          index={Math.min(lightbox, photos.length - 1)}
+          onIndexChange={setLightbox}
+          onClose={() => setLightbox(null)}
+          label={item.place_name || item.title}
+        />
       )}
 
       <div className="mt-2.5 flex flex-wrap items-center gap-3 font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.1em] text-muted print:hidden">

@@ -25,6 +25,22 @@ _JUNK = re.compile(
     re.I,
 )
 
+# Activity words that make an image search vague — a place/subject reads better.
+_FILLER = {
+    "crawl", "tour", "tours", "visit", "explore", "exploring", "sample",
+    "sampling", "various", "walk", "walking", "day", "trip", "experience",
+    "guided", "self", "hop", "stroll", "adventure", "discovery", "session",
+    "morning", "afternoon", "evening", "night", "optional", "free", "time",
+    "the", "and", "for", "with", "your", "our", "a", "an", "of", "at", "to",
+}
+
+
+def _clean_query(text: str) -> str:
+    words = [
+        w for w in re.split(r"[^A-Za-z0-9]+", text) if w and w.lower() not in _FILLER
+    ]
+    return " ".join(words)
+
 
 def _basename(url: str) -> str:
     """Stable key for de-duping (drops query string + thumbnail size prefix)."""
@@ -83,7 +99,7 @@ async def _wikipedia_gallery(
                 "gimlimit": "40",
                 "prop": "imageinfo",
                 "iiprop": "url|mime|size",
-                "iiurlwidth": "1000",
+                "iiurlwidth": "1400",
             },
             headers={"User-Agent": _UA},
         )
@@ -97,7 +113,7 @@ async def _wikipedia_gallery(
         return []
 
     name_tokens = _tokens(place_name)
-    out: list[tuple[str, str]] = []
+    scored: list[tuple[int, str, str]] = []
     for page in pages.values():
         title = page.get("title", "")
         if _JUNK.search(title):
@@ -110,16 +126,22 @@ async def _wikipedia_gallery(
         info = (page.get("imageinfo") or [{}])[0]
         if info.get("mime") not in ("image/jpeg", "image/png"):
             continue
-        if (info.get("width") or 0) < 250:
+        width = info.get("width") or 0
+        height = info.get("height") or 1
+        if width < 600:  # skip thumbnails / low-res scans
+            continue
+        ratio = width / height
+        if ratio < 0.7 or ratio > 2.4:  # skip portraits & panoramas — crop badly
             continue
         url = info.get("thumburl") or info.get("url")
         if not url:
             continue
         name = title.removeprefix("File:")
-        out.append((url, f"Wikimedia Commons — {name}"))
-        if len(out) >= limit:
-            break
-    return out
+        scored.append((width, url, f"Wikimedia Commons — {name}"))
+
+    # Crispest (largest source) first.
+    scored.sort(key=lambda t: t[0], reverse=True)
+    return [(url, attr) for _, url, attr in scored[:limit]]
 
 
 async def _unsplash_gallery(
@@ -133,7 +155,7 @@ async def _unsplash_gallery(
             _UNSPLASH_SEARCH,
             params={
                 "query": query,
-                "per_page": min(count, 10),
+                "per_page": "24",
                 "orientation": "landscape",
                 "content_filter": "high",
             },
@@ -147,14 +169,25 @@ async def _unsplash_gallery(
         results = resp.json().get("results") or []
     except ValueError:
         return []
-    out: list[tuple[str, str]] = []
+
+    scored: list[tuple[int, str, str]] = []
     for photo in results:
         url = (photo.get("urls") or {}).get("regular")
         if not url:
             continue
+        width = photo.get("width") or 0
+        height = photo.get("height") or 1
+        if width < 1200:  # skip low-res uploads
+            continue
+        ratio = width / height
+        if ratio < 0.9 or ratio > 2.2:  # skip portraits & panoramas
+            continue
         who = (photo.get("user") or {}).get("name") or "Unsplash"
-        out.append((url, f"Photo by {who} on Unsplash"))
-    return out
+        scored.append((photo.get("likes") or 0, url, f"Photo by {who} on Unsplash"))
+
+    # Most-liked first — a decent proxy for "well-composed, not murky".
+    scored.sort(key=lambda t: t[0], reverse=True)
+    return [(url, attr) for _, url, attr in scored[:count]]
 
 
 async def fetch_photos(
@@ -183,7 +216,7 @@ async def fetch_photos(
                 add(url, attr)
 
         if len(out) < limit:
-            query = " ".join(p for p in (name or category, city) if p)
+            query = _clean_query(f"{name or category} {city}") or city or category
             for url, attr in await _unsplash_gallery(client, query, limit - len(out)):
                 add(url, attr)
 
