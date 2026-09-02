@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CitySuggest } from "@/components/ui/CitySuggest";
+import { DateRangeField } from "@/components/ui/DateRangeField";
 
 export function HeroPlanner() {
   const router = useRouter();
@@ -107,32 +108,18 @@ export function HeroPlanner() {
 
           <span className="mx-1 hidden w-px bg-white/15 sm:block" />
 
-          <label className="flex flex-col gap-0.5 rounded-[16px] px-4 py-2.5 transition-colors hover:bg-white/10">
-            <span className="font-[var(--font-mono)] text-[0.6rem] uppercase tracking-[0.16em] text-white/60">
-              From
-            </span>
-            <input
-              type="date"
-              value={start}
-              onChange={(e) => setStart(e.target.value)}
-              className="bg-transparent text-sm text-white outline-none [color-scheme:dark]"
-            />
-          </label>
+          <DateRangeField
+            start={start}
+            end={end}
+            onChange={(s, e) => {
+              setStart(s);
+              setEnd(e);
+            }}
+            labelClass="font-[var(--font-mono)] text-[0.6rem] uppercase tracking-[0.16em] text-white/60"
+            fieldClass="text-sm text-white"
+          />
 
           <span className="mx-1 hidden w-px bg-white/15 sm:block" />
-
-          <label className="flex flex-col gap-0.5 rounded-[16px] px-4 py-2.5 transition-colors hover:bg-white/10">
-            <span className="font-[var(--font-mono)] text-[0.6rem] uppercase tracking-[0.16em] text-white/60">
-              To
-            </span>
-            <input
-              type="date"
-              value={end}
-              min={start || undefined}
-              onChange={(e) => setEnd(e.target.value)}
-              className="bg-transparent text-sm text-white outline-none [color-scheme:dark]"
-            />
-          </label>
 
           <button
             type="submit"

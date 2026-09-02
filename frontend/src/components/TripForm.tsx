@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { CitySuggest } from "@/components/ui/CitySuggest";
+import { DateRangeField } from "@/components/ui/DateRangeField";
 import { controlClass, Label, LabelText } from "@/components/ui/Field";
 import { INTEREST_OPTIONS } from "@/lib/constants";
 import type { Pace, TravelStyle, TripCreateInput } from "@/lib/types";
@@ -20,6 +21,8 @@ export function TripForm({
   const [error, setError] = useState<string | null>(null);
   const [interests, setInterests] = useState<string[]>(initial?.interests ?? []);
   const [destination, setDestination] = useState(initial?.destination ?? "");
+  const [startDate, setStartDate] = useState(initial?.start_date ?? "");
+  const [endDate, setEndDate] = useState(initial?.end_date ?? "");
 
   function toggleInterest(value: string) {
     setInterests((prev) =>
@@ -37,15 +40,18 @@ export function TripForm({
       setSubmitting(false);
       return;
     }
-    const start = String(form.get("start_date"));
-    const end = String(form.get("end_date"));
-    if (end < start) {
+    if (!startDate || !endDate) {
+      setError("Pick your travel dates.");
+      setSubmitting(false);
+      return;
+    }
+    if (endDate < startDate) {
       setError("End date must be on or after the start date.");
       setSubmitting(false);
       return;
     }
     const days =
-      Math.round((Date.parse(end) - Date.parse(start)) / 86_400_000) + 1;
+      Math.round((Date.parse(endDate) - Date.parse(startDate)) / 86_400_000) + 1;
     if (days > 21) {
       setError("Trips are capped at 21 days.");
       setSubmitting(false);
@@ -54,8 +60,8 @@ export function TripForm({
     try {
       await onSubmit({
         destination: destination.trim(),
-        start_date: String(form.get("start_date")),
-        end_date: String(form.get("end_date")),
+        start_date: startDate,
+        end_date: endDate,
         budget_total: form.get("budget_total") ? Number(form.get("budget_total")) : null,
         currency: String(form.get("currency") || "USD"),
         num_travelers: Number(form.get("num_travelers") || 1),
@@ -81,27 +87,21 @@ export function TripForm({
             placeholder="Kyoto, Japan"
           />
         </Label>
-        <div className="grid grid-cols-2 gap-4">
-          <Label>
-            <LabelText>Start date</LabelText>
-            <input
-              name="start_date"
-              type="date"
-              required
-              defaultValue={initial?.start_date}
-              className={controlClass}
-            />
-          </Label>
-          <Label>
-            <LabelText>End date</LabelText>
-            <input
-              name="end_date"
-              type="date"
-              required
-              defaultValue={initial?.end_date}
-              className={controlClass}
-            />
-          </Label>
+        <div className="flex flex-col gap-1.5">
+          <LabelText>Travel dates</LabelText>
+          <DateRangeField
+            start={startDate}
+            end={endDate}
+            onChange={(s, e) => {
+              setStartDate(s);
+              setEndDate(e);
+            }}
+            className="rounded-xl border border-border bg-surface/70"
+            labelClass="font-[var(--font-mono)] text-[0.66rem] uppercase tracking-[0.14em] text-muted"
+            fieldClass="text-sm"
+            dividerClass="bg-border"
+            triggerHoverClass="hover:bg-surface-2"
+          />
         </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <Label>
