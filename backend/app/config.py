@@ -25,6 +25,11 @@ class Settings(BaseSettings):
 
     google_places_api_key: str | None = None
 
+    # Place photos: Wikipedia (no key) with an Unsplash fallback when a key is set.
+    # https://unsplash.com/developers -> "New Application" -> Access Key.
+    unsplash_access_key: str | None = None
+    photos_enabled: bool = True
+
     # Live FX lookup (open.er-api.com, no key) for dual-currency display.
     # Disabled in tests so generation stays offline.
     fx_rates_enabled: bool = True

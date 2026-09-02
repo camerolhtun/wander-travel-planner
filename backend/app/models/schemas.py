@@ -85,6 +85,8 @@ class ItemOut(ItemBase):
     lat: float | None = None
     lng: float | None = None
     google_place_id: str | None = None
+    photo_url: str | None = None
+    photo_attribution: str | None = None
     is_user_edited: bool = False
 
 

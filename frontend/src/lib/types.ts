@@ -38,6 +38,8 @@ export interface ItineraryItem {
   lat: number | null;
   lng: number | null;
   google_place_id: string | null;
+  photo_url: string | null;
+  photo_attribution: string | null;
   is_user_edited: boolean;
 }
 

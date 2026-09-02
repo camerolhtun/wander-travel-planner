@@ -1,5 +1,6 @@
 """Orchestrates generation: LLM -> optional Places enrichment -> persistence."""
 
+import asyncio
 from datetime import datetime, time, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.db_models import ItineraryDay, ItineraryItem, Trip
 from app.services.fx import fetch_fx_rate, local_currency_for
 from app.services.gemini import generate_days
+from app.services.photos import fetch_photo
 from app.services.places import enrich_item
 
 
@@ -38,6 +40,7 @@ async def generate_itinerary(trip: Trip, db: AsyncSession) -> None:
             trip.days.remove(day)  # delete-orphan cascade removes the row on flush
     await db.flush()
 
+    fresh_items: list[ItineraryItem] = []
     for gday in generated.days:
         if gday.day_index in kept_day_indexes:
             continue
@@ -60,9 +63,24 @@ async def generate_itinerary(trip: Trip, db: AsyncSession) -> None:
             )
             await enrich_item(item, trip.destination)
             day.items.append(item)
+            fresh_items.append(item)
         trip.days.append(day)
 
+    await _attach_photos(fresh_items, trip.destination)
     await _snapshot_local_currency(trip)
+
+
+async def _attach_photos(items: list[ItineraryItem], destination: str) -> None:
+    """Fill photo_url / photo_attribution for freshly generated items, in parallel."""
+    sem = asyncio.Semaphore(8)
+
+    async def one(item: ItineraryItem) -> None:
+        async with sem:
+            hit = await fetch_photo(item.place_name, destination, item.category)
+        if hit:
+            item.photo_url, item.photo_attribution = hit
+
+    await asyncio.gather(*(one(item) for item in items))
 
 
 async def _snapshot_local_currency(trip: Trip) -> None:

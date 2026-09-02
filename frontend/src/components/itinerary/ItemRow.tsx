@@ -34,6 +34,7 @@ export function ItemRow({
 }) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
+  const [imgOk, setImgOk] = useState(true);
   const meta = CATEGORY_META[item.category];
 
   const save = useMutation({
@@ -147,7 +148,19 @@ export function ItemRow({
     <li className="group relative rounded-[18px] border border-border bg-surface/55 p-3.5 transition-colors duration-200 hover:border-[color-mix(in_oklab,var(--lake)_40%,var(--border))]">
       {dot}
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+        <div className="flex min-w-0 gap-3">
+          {item.photo_url && imgOk && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={item.photo_url}
+              alt={item.place_name || item.title}
+              title={item.photo_attribution ?? undefined}
+              loading="lazy"
+              onError={() => setImgOk(false)}
+              className="size-16 shrink-0 rounded-xl border border-border object-cover sm:size-20"
+            />
+          )}
+          <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 font-[var(--font-mono)] text-[0.7rem]">
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium normal-case ${meta.badge}`}
@@ -171,6 +184,12 @@ export function ItemRow({
               {item.address}
             </p>
           )}
+          {item.photo_url && imgOk && item.photo_attribution && (
+            <p className="mt-1 font-[var(--font-mono)] text-[0.6rem] text-muted/70">
+              {item.photo_attribution}
+            </p>
+          )}
+          </div>
         </div>
 
         <div className="flex shrink-0 flex-col gap-1 opacity-60 transition-opacity group-hover:opacity-100 print:hidden">

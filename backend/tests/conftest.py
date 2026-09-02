@@ -15,6 +15,7 @@ import pytest_asyncio
 os.environ["GEMINI_API_KEY"] = ""
 os.environ["GOOGLE_PLACES_API_KEY"] = ""
 os.environ["FX_RATES_ENABLED"] = "0"
+os.environ["PHOTOS_ENABLED"] = "0"
 os.environ["ENVIRONMENT"] = "development"
 
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
