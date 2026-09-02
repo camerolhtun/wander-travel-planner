@@ -60,7 +60,7 @@ function ArticleCard({ a }: { a: Article }) {
           alt=""
           loading="lazy"
           onError={() => setImgOk(false)}
-          className="mb-4 aspect-[16/9] w-full rounded-xl border border-border object-cover"
+          className="mb-4 aspect-[16/9] w-full rounded-xl border border-border bg-surface-2 object-cover"
         />
       )}
       <p className="font-[var(--font-mono)] text-[0.66rem] uppercase tracking-[0.12em] text-muted">
