@@ -23,29 +23,33 @@ export function HeroPlanner() {
   }
 
   return (
-    <section className="relative isolate flex min-h-[88svh] flex-col justify-end overflow-hidden">
-      <Image
-        src="/hero-fuji.jpg"
-        alt="Mount Fuji framed by cherry blossom in spring"
-        fill
-        priority
-        sizes="100vw"
-        className="-z-10 object-cover object-[50%_45%]"
-      />
-      {/* Legibility gradients — dark at the base + left for the copy */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10"
-        style={{
-          background:
-            "linear-gradient(to top, rgba(11,20,24,0.7) 0%, rgba(11,20,24,0.28) 42%, rgba(11,20,24,0) 72%), linear-gradient(100deg, rgba(11,20,24,0.5) 0%, rgba(11,20,24,0.12) 44%, transparent 62%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 -z-10 h-24"
-        style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
-      />
+    <section className="relative isolate flex min-h-[88svh] flex-col justify-end">
+      {/* Clipped decoration layer — keeps the full-bleed image contained while
+          letting overlays (e.g. the date popover) spill past the section. */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <Image
+          src="/hero-fuji.jpg"
+          alt="Mount Fuji framed by cherry blossom in spring"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[50%_45%]"
+        />
+        {/* Legibility gradients — dark at the base + left for the copy */}
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(11,20,24,0.7) 0%, rgba(11,20,24,0.28) 42%, rgba(11,20,24,0) 72%), linear-gradient(100deg, rgba(11,20,24,0.5) 0%, rgba(11,20,24,0.12) 44%, transparent 62%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-24"
+          style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
+        />
+      </div>
 
       <div className="mx-auto w-full max-w-6xl px-6 pb-14 pt-28 sm:pt-40 md:pb-20">
         <span className="rise inline-block rounded-full border border-white/25 bg-white/10 px-3 py-1 font-[var(--font-mono)] text-[0.62rem] uppercase tracking-[0.22em] text-white/85 backdrop-blur-sm">

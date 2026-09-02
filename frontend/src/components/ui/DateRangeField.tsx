@@ -44,6 +44,7 @@ export function DateRangeField({
   const [viewMonth, setViewMonth] = useState(() => startD ?? new Date());
   const [hover, setHover] = useState<Date | null>(null);
   const [focusDay, setFocusDay] = useState<Date>(() => startD ?? today);
+  const [placement, setPlacement] = useState<"bottom" | "top">("bottom");
 
   const rootRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -57,7 +58,7 @@ export function DateRangeField({
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setOpen(false);
-        fromBtnRef.current?.focus();
+        fromBtnRef.current?.focus({ preventScroll: true });
       }
     }
     document.addEventListener("mousedown", onDown);
@@ -72,8 +73,26 @@ export function DateRangeField({
     if (!open) return;
     gridRef.current
       ?.querySelector<HTMLButtonElement>(`[data-day="${toISO(focusDay)}"]`)
-      ?.focus();
+      ?.focus({ preventScroll: true });
   }, [open, focusDay, viewMonth]);
+
+  // Open above the trigger when there isn't room below, so the popover never
+  // gets clipped or forces the page to scroll.
+  useEffect(() => {
+    if (!open) return;
+    function measure() {
+      const rect = rootRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const POPOVER_H = 360;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setPlacement(
+        spaceBelow < POPOVER_H && rect.top > spaceBelow ? "top" : "bottom",
+      );
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [open]);
 
   function openWith(which: "start" | "end") {
     const effective = which === "end" && !startD ? "start" : which;
@@ -104,7 +123,7 @@ export function DateRangeField({
     onChange(toISO(startD), toISO(d));
     setHover(null);
     setOpen(false);
-    fromBtnRef.current?.focus();
+    fromBtnRef.current?.focus({ preventScroll: true });
   }
 
   function disabledDay(d: Date) {
@@ -172,7 +191,9 @@ export function DateRangeField({
         <div
           role="dialog"
           aria-label="Choose travel dates"
-          className="glass absolute left-0 top-full z-50 mt-3 w-[19.5rem] rounded-[20px] p-3 text-foreground"
+          className={`glass absolute left-0 z-50 max-h-[calc(100dvh-2rem)] w-[19.5rem] overflow-y-auto rounded-[20px] p-3 text-foreground ${
+            placement === "top" ? "bottom-full mb-3" : "top-full mt-3"
+          }`}
         >
           <div className="flex items-center justify-between">
             <button
