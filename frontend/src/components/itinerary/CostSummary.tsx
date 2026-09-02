@@ -22,8 +22,11 @@ export function CostSummary({ trip }: { trip: TripDetail }) {
   })).filter((r) => r.amount > 0);
 
   const fmt = (n: number) => money(n, trip.currency);
-  const sub = (n: number) =>
+  const local = (n: number) =>
     localMoney(n, trip.currency, trip.local_currency, trip.fx_rate);
+  // Local currency leads; selected currency drops to the muted second line.
+  const primary = (n: number) => local(n) ?? fmt(n);
+  const secondary = (n: number) => (local(n) ? fmt(n) : null);
 
   return (
     <div className="glass rounded-[20px]">
@@ -37,9 +40,17 @@ export function CostSummary({ trip }: { trip: TripDetail }) {
 
       <div className={open ? "block" : "hidden print:block"}>
         <div className="grid grid-cols-3 divide-x divide-[var(--border)] border-t border-border text-center">
-          <Stat label="Total" value={fmt(total)} sub={sub(total)} />
-          <Stat label="Per person" value={fmt(perPerson)} sub={sub(perPerson)} />
-          <Stat label="Per day" value={fmt(total / days)} sub={sub(total / days)} />
+          <Stat label="Total" value={primary(total)} sub={secondary(total)} />
+          <Stat
+            label="Per person"
+            value={primary(perPerson)}
+            sub={secondary(perPerson)}
+          />
+          <Stat
+            label="Per day"
+            value={primary(total / days)}
+            sub={secondary(total / days)}
+          />
         </div>
 
         {byCategory.length > 0 && (

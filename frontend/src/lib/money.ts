@@ -19,7 +19,7 @@ export function moneyDual(
 ): string {
   const base = money(amount, currency);
   const local = localMoney(amount, currency, localCurrency, fxRate);
-  return local ? `${base} · ${local}` : base;
+  return local ? `${local} · ${base}` : base;
 }
 
 /** "≈ ¥185,000" for the local currency, or null when there's no rate to use. */
