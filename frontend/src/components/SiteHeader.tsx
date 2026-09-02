@@ -7,9 +7,16 @@ import { Compass } from "@/components/brand/Compass";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { createClient } from "@/lib/supabase/client";
 
+const SECTIONS = [
+  { href: "/", label: "Home" },
+  { href: "/#how", label: "How it works" },
+  { href: "/#destinations", label: "Destinations" },
+];
+
 export function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
+  const onLanding = pathname === "/";
   const [email, setEmail] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -50,51 +57,58 @@ export function SiteHeader() {
     router.refresh();
   }
 
-  function navLink(href: string, label: string) {
-    const active = pathname === href || pathname.startsWith(`${href}/`);
-    return (
-      <Link
-        href={href}
-        className={`rounded-full px-3 py-1.5 transition-colors ${
-          active ? "text-foreground" : "text-muted hover:text-foreground"
-        }`}
-      >
-        {label}
-      </Link>
-    );
-  }
-
   return (
     <header className="sticky top-0 z-30 px-4 pt-3 print:hidden">
       <nav
-        className={`mx-auto flex max-w-5xl items-center justify-between rounded-full px-3 py-2 text-sm transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          scrolled ? "glass" : "border border-transparent"
+        className={`mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 text-sm transition-shadow duration-300 ${
+          scrolled ? "glass" : "glass !bg-[color-mix(in_oklab,var(--surface)_35%,transparent)]"
         }`}
       >
         <Link
           href="/"
-          className="flex items-center gap-2 pl-1 pr-3 font-[var(--font-display)] text-base tracking-tight"
+          className="flex items-center gap-2 pr-3 font-[var(--font-display)] text-base tracking-tight"
         >
           <Compass size={26} />
-          <span className="font-medium">Wander</span>
+          <span className="font-semibold">Wander</span>
         </Link>
 
-        <div className="flex items-center gap-1">
-          {navLink("/trips", "My trips")}
-          {ready && email ? (
-            <>
-              <span className="mx-1 hidden max-w-[16ch] truncate font-[var(--font-mono)] text-xs text-muted sm:inline">
-                {email}
-              </span>
-              <button
-                onClick={signOut}
+        {onLanding && (
+          <div className="hidden items-center gap-1 md:flex">
+            {SECTIONS.map((s) => (
+              <Link
+                key={s.href}
+                href={s.href}
                 className="rounded-full px-3 py-1.5 text-muted transition-colors hover:text-foreground"
               >
-                Sign out
-              </button>
-            </>
+                {s.label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center gap-1">
+          {(!onLanding || (ready && email)) && (
+            <Link
+              href="/trips"
+              className="rounded-full px-3 py-1.5 text-muted transition-colors hover:text-foreground"
+            >
+              My trips
+            </Link>
+          )}
+          {ready && email ? (
+            <button
+              onClick={signOut}
+              className="rounded-full px-3 py-1.5 text-muted transition-colors hover:text-foreground"
+            >
+              Sign out
+            </button>
           ) : (
-            navLink("/login", "Sign in")
+            <Link
+              href="/login"
+              className="rounded-full bg-[var(--lake)] px-4 py-1.5 font-medium text-white transition-colors hover:bg-[var(--lake-hover)]"
+            >
+              Sign in
+            </Link>
           )}
           <span className="mx-1 hidden h-4 w-px bg-border sm:block" />
           <ThemeToggle />

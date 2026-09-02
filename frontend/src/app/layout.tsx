@@ -7,7 +7,6 @@ import {
 import "./globals.css";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Trail } from "@/components/Trail";
 import { Providers } from "@/providers";
 
 const display = Schibsted_Grotesk({
@@ -50,9 +49,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="flex min-h-screen flex-col">
         <Providers>
-          <Trail />
           <SiteHeader />
-          <div className="relative z-[1] flex-1">{children}</div>
+          <div className="flex-1">{children}</div>
           <SiteFooter />
         </Providers>
       </body>
