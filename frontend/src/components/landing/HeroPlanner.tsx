@@ -89,8 +89,8 @@ export function HeroPlanner() {
           style={{ animationDelay: "300ms" }}
         >
           Tell Wander where you&apos;re going and what you like. It draws a
-          day-by-day route with times and an estimated daily budget every stop
-          yours to edit.
+          day-by-day route with times and an estimated daily budget. Every stop
+          is yours to edit.
         </p>
 
         {/* Dark liquid-glass search widget */}
