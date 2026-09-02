@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.db_models import ItineraryDay, ItineraryItem, Trip
 from app.services.fx import fetch_fx_rate, local_currency_for
 from app.services.gemini import generate_days
-from app.services.photos import fetch_photo
+from app.services.photos import fetch_photos
 from app.services.places import enrich_item
 
 
@@ -76,9 +76,11 @@ async def _attach_photos(items: list[ItineraryItem], destination: str) -> None:
 
     async def one(item: ItineraryItem) -> None:
         async with sem:
-            hit = await fetch_photo(item.place_name, destination, item.category)
-        if hit:
-            item.photo_url, item.photo_attribution = hit
+            photos = await fetch_photos(item.place_name, destination, item.category)
+        if photos:
+            item.photos = photos
+            item.photo_url = photos[0]["url"]
+            item.photo_attribution = photos[0]["attribution"]
 
     await asyncio.gather(*(one(item) for item in items))
 

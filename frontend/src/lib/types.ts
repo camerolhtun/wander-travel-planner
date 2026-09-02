@@ -22,6 +22,11 @@ export interface Trip {
   updated_at: string;
 }
 
+export interface Photo {
+  url: string;
+  attribution: string | null;
+}
+
 export interface ItineraryItem {
   id: string;
   day_id: string;
@@ -40,6 +45,7 @@ export interface ItineraryItem {
   google_place_id: string | null;
   photo_url: string | null;
   photo_attribution: string | null;
+  photos: Photo[];
   is_user_edited: boolean;
 }
 

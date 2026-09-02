@@ -2,7 +2,7 @@ import datetime as dt
 import uuid
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 TravelStyle = Literal["budget", "mid", "luxury"]
 Pace = Literal["relaxed", "moderate", "packed"]
@@ -49,6 +49,11 @@ class TripUpdate(BaseModel):
 
 
 # --------------------------------------------------------------------------- items
+class Photo(BaseModel):
+    url: str
+    attribution: str | None = None
+
+
 class ItemBase(BaseModel):
     sort_order: int = 0
     start_time: dt.time | None = None
@@ -87,7 +92,13 @@ class ItemOut(ItemBase):
     google_place_id: str | None = None
     photo_url: str | None = None
     photo_attribution: str | None = None
+    photos: list[Photo] = []
     is_user_edited: bool = False
+
+    @field_validator("photos", mode="before")
+    @classmethod
+    def _photos_never_null(cls, v: object) -> object:
+        return v or []
 
 
 # ---------------------------------------------------------------------------- days

@@ -1,5 +1,7 @@
 "use client";
 
+/* Remote place photos are plain <img> (many hosts, small thumbs) — Image opt not worth it. */
+/* eslint-disable @next/next/no-img-element */
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { buttonClass } from "@/components/ui/Button";
@@ -35,7 +37,9 @@ export function ItemRow({
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [imgOk, setImgOk] = useState(true);
+  const [showPhotos, setShowPhotos] = useState(false);
   const meta = CATEGORY_META[item.category];
+  const photos = item.photos ?? [];
 
   const save = useMutation({
     mutationFn: (patch: Partial<ItineraryItem>) => api.updateItem(item.id, patch),
@@ -150,15 +154,23 @@ export function ItemRow({
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 gap-3">
           {item.photo_url && imgOk && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={item.photo_url}
-              alt={item.place_name || item.title}
-              title={item.photo_attribution ?? undefined}
-              loading="lazy"
-              onError={() => setImgOk(false)}
-              className="size-16 shrink-0 rounded-xl border border-border object-cover sm:size-20"
-            />
+            <button
+              type="button"
+              onClick={() => photos.length > 1 && setShowPhotos((v) => !v)}
+              className={`shrink-0 border-0 bg-transparent p-0 ${photos.length > 1 ? "cursor-pointer" : "cursor-default"}`}
+              aria-label={
+                photos.length > 1 ? `Show ${photos.length} photos` : undefined
+              }
+            >
+              <img
+                src={item.photo_url}
+                alt={item.place_name || item.title}
+                title={item.photo_attribution ?? undefined}
+                loading="lazy"
+                onError={() => setImgOk(false)}
+                className="size-16 rounded-xl border border-border object-cover sm:size-20"
+              />
+            </button>
           )}
           <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 font-[var(--font-mono)] text-[0.7rem]">
@@ -184,9 +196,19 @@ export function ItemRow({
               {item.address}
             </p>
           )}
-          {item.photo_url && imgOk && item.photo_attribution && (
+          {item.photo_url && imgOk && !showPhotos && (
             <p className="mt-1 font-[var(--font-mono)] text-[0.6rem] text-muted/70">
-              {item.photo_attribution}
+              {photos.length > 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setShowPhotos(true)}
+                  className="uppercase tracking-[0.1em] hover:text-foreground"
+                >
+                  + {photos.length} photos
+                </button>
+              ) : (
+                item.photo_attribution
+              )}
             </p>
           )}
           </div>
@@ -212,10 +234,45 @@ export function ItemRow({
         </div>
       </div>
 
+      {showPhotos && photos.length > 0 && (
+        <div className="mt-3">
+          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {photos.map((p, i) => (
+              <a
+                key={p.url}
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={p.attribution ?? undefined}
+                className="shrink-0"
+              >
+                <img
+                  src={p.url}
+                  alt={`${item.place_name || item.title} — photo ${i + 1}`}
+                  loading="lazy"
+                  className="h-32 w-48 rounded-xl border border-border object-cover transition-opacity hover:opacity-90"
+                />
+              </a>
+            ))}
+          </div>
+          <p className="mt-1.5 font-[var(--font-mono)] text-[0.6rem] text-muted/70">
+            {[...new Set(photos.map((p) => p.attribution).filter(Boolean))].join(" · ")}
+          </p>
+        </div>
+      )}
+
       <div className="mt-2.5 flex flex-wrap items-center gap-3 font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.1em] text-muted print:hidden">
         <button onClick={() => setEditing(true)} className="hover:text-foreground">
           Edit
         </button>
+        {photos.length > 1 && (
+          <button
+            onClick={() => setShowPhotos((v) => !v)}
+            className="hover:text-foreground"
+          >
+            {showPhotos ? "Hide photos" : `Photos ${photos.length}`}
+          </button>
+        )}
         <button
           onClick={() => {
             if (confirm(`Delete "${item.title}"?`)) remove.mutate();
