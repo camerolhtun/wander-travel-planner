@@ -205,16 +205,18 @@
 /* Matte frosted bar — for the sticky nav. Heavy blur, low saturation, and no
    gloss highlight, so it reads as a soft frosted panel over the content. */
 .glass-nav {
-  background: color-mix(in oklab, var(--surface) 58%, transparent);
-  border: 1px solid color-mix(in oklab, var(--border) 55%, transparent);
-  backdrop-filter: blur(28px) saturate(0.9);
-  -webkit-backdrop-filter: blur(28px) saturate(0.9);
-  box-shadow: 0 6px 22px -14px rgba(23, 60, 82, 0.18);
+  background: color-mix(in oklab, var(--surface) 45%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+  backdrop-filter: blur(40px) saturate(0.8) brightness(1.06);
+  -webkit-backdrop-filter: blur(40px) saturate(0.8) brightness(1.06);
+  box-shadow: 0 8px 26px -16px rgba(23, 60, 82, 0.2);
 }
 .dark .glass-nav {
-  background: color-mix(in oklab, var(--surface) 55%, transparent);
+  background: color-mix(in oklab, var(--surface) 46%, transparent);
   border-color: color-mix(in oklab, #ffffff 8%, transparent);
-  box-shadow: 0 6px 22px -14px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(40px) saturate(0.8) brightness(0.82);
+  -webkit-backdrop-filter: blur(40px) saturate(0.8) brightness(0.82);
+  box-shadow: 0 8px 26px -16px rgba(0, 0, 0, 0.55);
 }
 
 /* Near-opaque frost — for menus/popovers that overlap photography or text and
