@@ -21,7 +21,7 @@ export function HeroPlanner() {
   }
 
   return (
-    <section className="relative isolate flex min-h-[82svh] flex-col justify-center overflow-hidden">
+    <section className="relative isolate flex min-h-[86svh] flex-col justify-start overflow-hidden">
       {/* Full-bleed photo */}
       <Image
         src="/hero-fuji.jpg"
@@ -51,7 +51,7 @@ export function HeroPlanner() {
         style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
       />
 
-      <div className="mx-auto w-full max-w-6xl px-6 py-16 md:pl-24">
+      <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-[17vh] md:pl-24">
         <p className="eyebrow rise" style={{ animationDelay: "0ms" }}>
           Wander — AI itinerary planner
         </p>
