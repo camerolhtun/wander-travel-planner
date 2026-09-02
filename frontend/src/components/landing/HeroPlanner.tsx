@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CitySuggest } from "@/components/ui/CitySuggest";
 
 export function HeroPlanner() {
   const router = useRouter();
@@ -21,35 +22,36 @@ export function HeroPlanner() {
   }
 
   return (
-    <section className="relative isolate flex min-h-[86svh] flex-col justify-start overflow-hidden">
-      {/* Full-bleed photo */}
-      <Image
-        src="/hero-fuji.jpg"
-        alt="Mount Fuji framed by cherry blossom in spring"
-        fill
-        priority
-        sizes="100vw"
-        className="-z-10 object-cover object-[50%_42%]"
-      />
-      {/* Pearl wash — heavier on the left where the copy sits, melts to page at the base */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10"
-        style={{
-          background:
-            "linear-gradient(102deg, color-mix(in oklab, var(--background) 82%, transparent) 0%, color-mix(in oklab, var(--background) 58%, transparent) 42%, color-mix(in oklab, var(--background) 34%, transparent) 100%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 -z-10 h-20"
-        style={{ background: "linear-gradient(to bottom, var(--background), transparent)" }}
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 -z-10 h-40"
-        style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
-      />
+    <section className="relative isolate flex min-h-[86svh] flex-col justify-start">
+      {/* Full-bleed photo + pearl wash (clipped so nothing bleeds) */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <Image
+          src="/hero-fuji.jpg"
+          alt="Mount Fuji framed by cherry blossom in spring"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[50%_42%]"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(102deg, color-mix(in oklab, var(--background) 82%, transparent) 0%, color-mix(in oklab, var(--background) 58%, transparent) 42%, color-mix(in oklab, var(--background) 34%, transparent) 100%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-20"
+          style={{ background: "linear-gradient(to bottom, var(--background), transparent)" }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-40"
+          style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
+        />
+      </div>
 
       <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-[17vh] md:pl-24">
         <p className="eyebrow rise" style={{ animationDelay: "0ms" }}>
@@ -93,18 +95,17 @@ export function HeroPlanner() {
         {/* Liquid-glass search widget */}
         <form
           onSubmit={submit}
-          className="glass-search rise mt-7 flex max-w-xl flex-col gap-0.5 rounded-[20px] p-1.5 sm:flex-row sm:items-stretch"
+          className="glass-search rise relative z-10 mt-7 flex max-w-xl flex-col gap-0.5 rounded-[20px] p-1.5 sm:flex-row sm:items-stretch"
           style={{ animationDelay: "420ms" }}
         >
           <label className="flex flex-1 flex-col gap-0.5 rounded-[14px] px-3.5 py-2 transition-colors hover:bg-white/25">
             <span className="font-[var(--font-mono)] text-[0.6rem] uppercase tracking-[0.16em] text-muted">
               Where to?
             </span>
-            <input
+            <CitySuggest
               value={to}
-              onChange={(e) => setTo(e.target.value)}
-              placeholder="Kyoto, Japan"
-              className="w-full bg-transparent text-sm outline-none placeholder:text-muted/70"
+              onChange={setTo}
+              inputClassName="w-full bg-transparent text-sm outline-none placeholder:text-muted/70"
             />
           </label>
 

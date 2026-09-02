@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { CitySuggest } from "@/components/ui/CitySuggest";
 import { controlClass, Label, LabelText } from "@/components/ui/Field";
 import { INTEREST_OPTIONS } from "@/lib/constants";
 import type { Pace, TravelStyle, TripCreateInput } from "@/lib/types";
@@ -18,6 +19,7 @@ export function TripForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [interests, setInterests] = useState<string[]>(initial?.interests ?? []);
+  const [destination, setDestination] = useState(initial?.destination ?? "");
 
   function toggleInterest(value: string) {
     setInterests((prev) =>
@@ -30,6 +32,11 @@ export function TripForm({
     setSubmitting(true);
     setError(null);
     const form = new FormData(e.currentTarget);
+    if (!destination.trim()) {
+      setError("Enter a destination.");
+      setSubmitting(false);
+      return;
+    }
     const start = String(form.get("start_date"));
     const end = String(form.get("end_date"));
     if (end < start) {
@@ -46,7 +53,7 @@ export function TripForm({
     }
     try {
       await onSubmit({
-        destination: String(form.get("destination")),
+        destination: destination.trim(),
         start_date: String(form.get("start_date")),
         end_date: String(form.get("end_date")),
         budget_total: form.get("budget_total") ? Number(form.get("budget_total")) : null,
@@ -67,11 +74,10 @@ export function TripForm({
       <section className="glass space-y-4 rounded-[22px] p-5">
         <Label>
           <LabelText>Destination</LabelText>
-          <input
-            name="destination"
-            required
-            defaultValue={initial?.destination}
-            className={controlClass}
+          <CitySuggest
+            value={destination}
+            onChange={setDestination}
+            inputClassName={controlClass}
             placeholder="Kyoto, Japan"
           />
         </Label>
