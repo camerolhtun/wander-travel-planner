@@ -9,7 +9,7 @@ const STEPS = [
   {
     n: "02",
     title: "Wander draws the route",
-    body: "A day-by-day plan — attractions, food, timings, and an estimated daily spend.",
+    body: "A day-by-day plan with attractions, food, timings, and an estimated daily spend.",
   },
   {
     n: "03",
