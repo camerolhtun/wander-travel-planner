@@ -1,9 +1,9 @@
 """Travel-blog inspiration feed.
 
-Aggregates a handful of reputable travel-publication RSS feeds, tags each
-article by interest from keywords, and serves the freshest per interest.
-All fetching is best-effort — a dead or slow feed is skipped. Results are
-cached in-process for ~45 minutes so we stay polite to the feed hosts.
+Per section we run a tuned Google News RSS search (no key) aimed at the kind
+of piece people actually want here — "best beaches right now", "where to eat
+in X", "festival calendar" — then keep only results whose headline is on
+topic. Cached in-process ~45 min. All fetching is best-effort.
 """
 
 import asyncio
@@ -11,7 +11,6 @@ import datetime as dt
 import html
 import re
 import time
-from urllib.parse import urlparse
 
 import feedparser
 import httpx
@@ -19,98 +18,87 @@ import httpx
 from app.config import get_settings
 
 _UA = "WanderTravelPlanner/1.0 (+https://github.com/camerolhtun/wander-travel-planner)"
-
-# Curated travel publications with open RSS feeds.
-_FEEDS: list[str] = [
-    "https://www.nomadicmatt.com/travel-blog/feed/",
-    "https://thepointsguy.com/feed/",
-    "https://www.theblondeabroad.com/feed/",
-    "https://www.adventurouskate.com/feed/",
-    "https://expertvagabond.com/feed/",
-    "https://www.saltinourhair.com/feed/",
-    "https://matadornetwork.com/feed/",
-    "https://www.atlasobscura.com/feeds/latest-articles.rss",
-    "https://www.travelandleisure.com/feeds/all/rss.xml",
-    "https://www.cntraveler.com/feed/rss",
-    "https://www.lonelyplanet.com/news/feed",
-    "https://www.thetravelmagazine.net/feed/",
-]
-
-INTEREST_KEYWORDS: dict[str, tuple[str, ...]] = {
-    "beach": (
-        "beach", "beaches", "island", "islands", "coast", "coastal", "seaside",
-        "snorkel", "scuba", "diving", "reef", "tropical", "lagoon", "surf",
-        "caribbean", "maldives", "bali", "cancun", "hawaii", "phuket", "riviera",
-        "shore", "sailing", "sandbar",
-    ),
-    "mountain": (
-        "mountain", "mountains", "hike", "hiking", "trek", "trekking", "trail",
-        "trails", "alps", "alpine", "himalaya", "andes", "rockies", "dolomites",
-        "patagonia", "summit", "peak", "ski", "skiing", "snowboard", "climbing",
-        "national park", "backcountry", "valley", "glacier",
-    ),
-    "culture": (
-        "museum", "museums", "history", "historic", "heritage", "temple",
-        "cathedral", "ruins", "old town", "architecture", "gallery", "festival",
-        "cuisine", "food scene", "market", "unesco", "palace", "castle",
-        "cultural", "tradition", "ancient", "monastery",
-    ),
-}
+_NEWS_URL = "https://news.google.com/rss/search"
 
 _TAG_RE = re.compile(r"<[^>]+>")
 _WS_RE = re.compile(r"\s+")
-_IMG_RE = re.compile(r'<img[^>]+src=["\']([^"\']+)["\']', re.I)
-_BOILER_RE = re.compile(
-    r"\s*(the post .*? appeared first on .*?\.?$"
-    r"|continue reading.*$"
-    r"|read more.*$"
-    r"|\[[….]+\]$"
-    r"|[….]{3}$)",
-    re.I,
-)
 
-_POOL_TTL = 45 * 60
-_pool: tuple[float, list[dict]] | None = None
-_lock = asyncio.Lock()
+# query  -> the Google News search (kept focused on guide / when-to-go pieces)
+# keywords -> at least one must appear in the headline, or we drop it
+# recency -> Google News `when:` window
+SECTIONS: dict[str, dict] = {
+    "beach": {
+        "label": "Beach",
+        "blurb": "Where to find sand and warm water right now — guides and tips from around the web.",
+        "query": '("best beaches" OR "best islands" OR "beach destinations" OR "island getaway" OR "when to visit") beach travel',
+        "keywords": (
+            "beach", "beaches", "island", "islands", "coast", "coastal", "shore",
+            "seaside", "snorkel", "reef", "riviera", "lagoon", "surf", "sandbar",
+        ),
+        "recency": "60d",
+    },
+    "mountain": {
+        "label": "Mountain",
+        "blurb": "Trails, peaks and mountain towns — where and when to go.",
+        "query": '("best hikes" OR "hiking trails" OR "mountain towns" OR "ski resorts" OR "best time to hike") travel',
+        "keywords": (
+            "mountain", "mountains", "hike", "hiking", "hikes", "trail", "trails",
+            "trek", "trekking", "alps", "alpine", "ski", "skiing", "summit",
+            "peak", "peaks", "dolomites", "andes", "himalaya", "national park",
+        ),
+        "recency": "60d",
+    },
+    "culture": {
+        "label": "Culture",
+        "blurb": "Cities, history and heritage — what to see and when.",
+        "query": '("historic cities" OR "cultural destinations" OR "museums to visit" OR "world heritage site" OR "old town") travel',
+        "keywords": (
+            "culture", "cultural", "history", "historic", "heritage", "museum",
+            "museums", "old town", "unesco", "temple", "temples", "ruins",
+            "palace", "castle", "cathedral", "ancient", "art",
+        ),
+        "recency": "60d",
+    },
+    "food": {
+        "label": "Food",
+        "blurb": "The world's best places to eat and drink — city guides and food trails.",
+        "query": '("best food cities" OR "food guide" OR "where to eat" OR "culinary travel" OR "street food") travel',
+        "keywords": (
+            "food", "eat", "eating", "restaurant", "restaurants", "culinary",
+            "cuisine", "dish", "dishes", "street food", "michelin", "dining",
+            "wine", "coffee", "bakery", "market", "chef", "tasting",
+        ),
+        "recency": "60d",
+    },
+    "festivals": {
+        "label": "Festivals",
+        "blurb": "Carnivals, lantern nights and harvest fairs — plan a trip around a festival.",
+        "query": '("festivals to visit" OR "best festivals" OR "festival calendar" OR "cultural festivals" OR "music festivals") travel',
+        "keywords": (
+            "festival", "festivals", "carnival", "carnaval", "parade", "fiesta",
+            "celebration", "fair", "holi", "diwali", "oktoberfest", "mardi gras",
+            "lantern", "new year", "pride", "harvest",
+        ),
+        "recency": "180d",
+    },
+}
+
+# Headlines that match a topic keyword but aren't travel inspiration.
+_NEGATIVE = (
+    "buy a home", "real estate", "for sale", "prices rise", "housing market",
+    "mortgage", "road closure", "bridge closing", "bridge closed", "lane closure",
+    "arrested", "lawsuit", "obituary", "shooting", "crash", "sentenced",
+    "layoffs", "earnings", "stock", "recall",
+)
+_BLOCK_SOURCES = {"rus tourism news", "tycoonstory.com", "safariindia.com"}
+
+_TTL = 45 * 60
+_cache: dict[str, tuple[float, list[dict]]] = {}
+_locks: dict[str, asyncio.Lock] = {}
 
 
 def _strip_html(s: str) -> str:
     return _WS_RE.sub(" ", html.unescape(_TAG_RE.sub(" ", s or ""))).strip()
-
-
-def _clean_summary(s: str) -> str:
-    s = _strip_html(s)
-    prev = None
-    while prev != s:  # boilerplate can stack (…  Continue reading)
-        prev = s
-        s = _BOILER_RE.sub("", s).strip()
-    return s
-
-
-def _source_name(parsed: feedparser.FeedParserDict, url: str) -> str:
-    title = (parsed.feed.get("title") or "").strip()
-    if title:
-        return title
-    host = urlparse(url).netloc.replace("www.", "")
-    return host or "Travel blog"
-
-
-def _entry_image(entry: feedparser.FeedParserDict) -> str | None:
-    for mc in entry.get("media_content", []) or []:
-        if mc.get("url"):
-            return mc["url"]
-    for mt in entry.get("media_thumbnail", []) or []:
-        if mt.get("url"):
-            return mt["url"]
-    for enc in entry.get("enclosures", []) or []:
-        if (enc.get("type") or "").startswith("image") and enc.get("href"):
-            return enc["href"]
-    body = ""
-    if entry.get("content"):
-        body = entry["content"][0].get("value", "")
-    body = body or entry.get("summary", "")
-    m = _IMG_RE.search(body or "")
-    return m.group(1) if m else None
 
 
 def _published_iso(entry: feedparser.FeedParserDict) -> str | None:
@@ -123,85 +111,88 @@ def _published_iso(entry: feedparser.FeedParserDict) -> str | None:
         return None
 
 
-async def _fetch_feed(client: httpx.AsyncClient, url: str) -> list[dict]:
+def _split_headline(raw_title: str, entry: feedparser.FeedParserDict) -> tuple[str, str]:
+    """Google News titles read 'Headline - Publisher'; peel the publisher off."""
+    src = ""
+    s = entry.get("source")
+    if isinstance(s, dict):
+        src = (s.get("title") or "").strip()
+    elif isinstance(s, str):
+        src = s.strip()
+
+    title = raw_title
+    if src and title.endswith(f" - {src}"):
+        title = title[: -len(f" - {src}")].strip()
+    elif not src and " - " in raw_title:
+        title, src = (p.strip() for p in raw_title.rsplit(" - ", 1))
+    return title or raw_title, src
+
+
+async def _fetch_section(client: httpx.AsyncClient, section: str) -> list[dict]:
+    cfg = SECTIONS[section]
+    params = {
+        "q": f"{cfg['query']} when:{cfg['recency']}",
+        "hl": "en-US",
+        "gl": "US",
+        "ceid": "US:en",
+    }
     try:
-        resp = await client.get(url, headers={"User-Agent": _UA})
+        resp = await client.get(_NEWS_URL, params=params, headers={"User-Agent": _UA})
     except httpx.HTTPError:
         return []
     if resp.status_code != 200:
         return []
 
     parsed = feedparser.parse(resp.content)
-    source = _source_name(parsed, url)
+    keywords = cfg["keywords"]
     out: list[dict] = []
-    for entry in parsed.entries[:25]:
+    seen: set[str] = set()
+    for entry in parsed.entries[:80]:
+        raw_title = _strip_html(entry.get("title") or "")
         link = (entry.get("link") or "").strip()
-        title = _strip_html(entry.get("title") or "")
-        if not link or not title:
+        if not raw_title or not link:
             continue
-        summary = _clean_summary(entry.get("summary") or entry.get("description") or "")
-        tags = " ".join(t.get("term", "") for t in entry.get("tags", []) or [])
-        haystack = f"{title} {summary} {tags}".lower()
-        interests = [
-            key
-            for key, words in INTEREST_KEYWORDS.items()
-            if any(w in haystack for w in words)
-        ]
-        if not interests:
+        title, source = _split_headline(raw_title, entry)
+        low = title.lower()
+        if not any(k in low for k in keywords):
+            continue  # headline isn't actually about this topic
+        if any(n in low for n in _NEGATIVE):
             continue
+        if source.lower() in _BLOCK_SOURCES:
+            continue
+        if low in seen:
+            continue
+        seen.add(low)
         out.append(
             {
                 "title": title,
                 "url": link,
-                "source": source,
-                "summary": summary[:240] or None,
-                "image": _entry_image(entry),
+                "source": source or "Google News",
+                "summary": None,
+                "image": None,
                 "published_at": _published_iso(entry),
-                "interests": interests,
             }
         )
     return out
 
 
-async def _load_pool() -> list[dict]:
-    global _pool
-    if not get_settings().inspiration_enabled:
+async def get_inspiration(section: str, limit: int = 24) -> list[dict]:
+    key = section.strip().lower()
+    if key not in SECTIONS or not get_settings().inspiration_enabled:
         return []
+
     now = time.time()
-    if _pool and now - _pool[0] < _POOL_TTL:
-        return _pool[1]
-    async with _lock:
-        if _pool and time.time() - _pool[0] < _POOL_TTL:
-            return _pool[1]
-        sem = asyncio.Semaphore(6)
+    hit = _cache.get(key)
+    if hit and now - hit[0] < _TTL:
+        return hit[1][:limit]
 
-        async def one(client: httpx.AsyncClient, u: str) -> list[dict]:
-            async with sem:
-                return await _fetch_feed(client, u)
-
+    lock = _locks.setdefault(key, asyncio.Lock())
+    async with lock:
+        hit = _cache.get(key)
+        if hit and time.time() - hit[0] < _TTL:
+            return hit[1][:limit]
         async with httpx.AsyncClient(timeout=12, follow_redirects=True) as client:
-            batches = await asyncio.gather(
-                *(one(client, u) for u in _FEEDS), return_exceptions=True
-            )
-
-        seen: set[str] = set()
-        items: list[dict] = []
-        for batch in batches:
-            if isinstance(batch, BaseException):
-                continue
-            for it in batch:
-                if it["url"] in seen:
-                    continue
-                seen.add(it["url"])
-                items.append(it)
+            items = await _fetch_section(client, key)
         items.sort(key=lambda it: it["published_at"] or "", reverse=True)
-        _pool = (time.time(), items)
-        return items
-
-
-async def get_inspiration(interest: str, limit: int = 24) -> list[dict]:
-    key = interest.strip().lower()
-    if key not in INTEREST_KEYWORDS:
-        return []
-    pool = await _load_pool()
-    return [it for it in pool if key in it["interests"]][:limit]
+        _cache[key] = (time.time(), items)
+        return items[:limit]

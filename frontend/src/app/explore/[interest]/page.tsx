@@ -12,15 +12,23 @@ import type { Article } from "@/lib/types";
 const INTERESTS: Record<string, { label: string; blurb: string }> = {
   beach: {
     label: "Beach",
-    blurb: "Islands, coastlines and warm water — fresh stories from around the web.",
+    blurb: "Where to find sand and warm water right now — guides and tips from around the web.",
   },
   mountain: {
     label: "Mountain",
-    blurb: "Trails, peaks and alpine towns — fresh stories from around the web.",
+    blurb: "Trails, peaks and mountain towns — where and when to go.",
   },
   culture: {
     label: "Culture",
-    blurb: "Cities, history and food — fresh stories from around the web.",
+    blurb: "Cities, history and heritage — what to see and when.",
+  },
+  food: {
+    label: "Food",
+    blurb: "The world's best places to eat and drink — city guides and food trails.",
+  },
+  festivals: {
+    label: "Festivals",
+    blurb: "Carnivals, lantern nights and harvest fairs — plan a trip around a festival.",
   },
 };
 
@@ -38,45 +46,38 @@ function timeAgo(iso: string | null): string {
 
 function ArticleCard({ a }: { a: Article }) {
   const [imgOk, setImgOk] = useState(true);
+  const hasImg = Boolean(a.image) && imgOk;
   return (
     <a
       href={a.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-border bg-surface shadow-[var(--shadow-soft)] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1"
+      className="group flex h-full flex-col rounded-[20px] border border-border bg-surface p-5 shadow-[var(--shadow-soft)] transition-[transform,border-color] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:border-[color-mix(in_oklab,var(--lake)_40%,var(--border))]"
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-surface-2">
-        {a.image && imgOk ? (
-          <img
-            src={a.image}
-            alt=""
-            loading="lazy"
-            onError={() => setImgOk(false)}
-            className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
-          />
-        ) : (
-          <div className="grid h-full w-full place-items-center font-[var(--font-display)] text-3xl text-muted/40">
-            {a.source.charAt(0)}
-          </div>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col p-4">
-        <p className="font-[var(--font-mono)] text-[0.66rem] uppercase tracking-[0.12em] text-muted">
-          {a.source}
-          {a.published_at && <span className="text-muted/60"> · {timeAgo(a.published_at)}</span>}
+      {hasImg && (
+        <img
+          src={a.image!}
+          alt=""
+          loading="lazy"
+          onError={() => setImgOk(false)}
+          className="mb-4 aspect-[16/9] w-full rounded-xl border border-border object-cover"
+        />
+      )}
+      <p className="font-[var(--font-mono)] text-[0.66rem] uppercase tracking-[0.12em] text-muted">
+        {a.source}
+        {a.published_at && <span className="text-muted/60"> · {timeAgo(a.published_at)}</span>}
+      </p>
+      <h3 className="mt-2 font-[var(--font-display)] text-lg font-semibold leading-snug line-clamp-3 group-hover:text-[var(--lake)]">
+        {a.title}
+      </h3>
+      {a.summary && (
+        <p className="mt-2 text-sm leading-relaxed text-muted line-clamp-2">
+          {a.summary}
         </p>
-        <h3 className="mt-1.5 font-[var(--font-display)] text-lg font-semibold leading-snug [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden group-hover:text-[var(--lake)]">
-          {a.title}
-        </h3>
-        {a.summary && (
-          <p className="mt-1.5 text-sm leading-relaxed text-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
-            {a.summary}
-          </p>
-        )}
-        <span className="mt-3 inline-flex items-center gap-1 font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.12em] text-[var(--lake)]">
-          Read on {a.source} ↗
-        </span>
-      </div>
+      )}
+      <span className="mt-auto inline-flex items-center gap-1 pt-4 font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.12em] text-[var(--lake)]">
+        Read on {a.source} ↗
+      </span>
     </a>
   );
 }
@@ -131,7 +132,7 @@ export default function ExplorePage({
       <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {isLoading &&
           Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-72 w-full rounded-[22px]" />
+            <Skeleton key={i} className="h-44 w-full rounded-[20px]" />
           ))}
 
         {!isLoading &&

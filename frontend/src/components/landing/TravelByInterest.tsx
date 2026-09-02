@@ -10,6 +10,8 @@ const INTERESTS = [
   { name: "Beach", img: "/int-beach.jpg", icon: "◐" },
   { name: "Mountain", img: "/int-mountain.jpg", icon: "▲" },
   { name: "Culture", img: "/int-culture.jpg", icon: "◆" },
+  { name: "Food", img: "/int-food.jpg", icon: "◉" },
+  { name: "Festivals", img: "/int-festival.jpg", icon: "✦" },
 ];
 
 export function TravelByInterest() {

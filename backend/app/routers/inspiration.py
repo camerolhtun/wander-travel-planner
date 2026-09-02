@@ -1,14 +1,14 @@
 from fastapi import APIRouter
 
 from app.models.schemas import ArticleOut
-from app.services.inspiration import INTEREST_KEYWORDS, get_inspiration
+from app.services.inspiration import SECTIONS, get_inspiration
 
 router = APIRouter(prefix="/inspiration", tags=["inspiration"])
 
 
 @router.get("/interests", response_model=list[str])
 async def list_interests() -> list[str]:
-    return list(INTEREST_KEYWORDS)
+    return list(SECTIONS)
 
 
 @router.get("/{interest}", response_model=list[ArticleOut])
