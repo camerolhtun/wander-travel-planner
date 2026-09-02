@@ -31,11 +31,6 @@ export function SiteFooter() {
           ))}
         </nav>
       </div>
-      <div className="border-t border-white/10">
-        <p className="mx-auto max-w-6xl px-6 py-4 font-[var(--font-mono)] text-[0.7rem] uppercase tracking-[0.16em] text-white/40">
-          Built with Next.js · FastAPI · Supabase · Gemini
-        </p>
-      </div>
     </footer>
   );
 }
