@@ -134,6 +134,17 @@ export function ItineraryEditor({ tripId }: { tripId: string }) {
         )}
       </div>
 
+      {trip.notes && (
+        <div className="glass mt-3 rounded-[20px] p-4">
+          <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.14em] text-muted">
+            Your notes
+          </p>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">
+            {trip.notes}
+          </p>
+        </div>
+      )}
+
       {trip.days.length > 0 && (
         <div className="mt-3">
           <CostSummary trip={trip} />

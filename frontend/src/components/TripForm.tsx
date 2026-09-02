@@ -25,6 +25,7 @@ export function TripForm({
   const [startDate, setStartDate] = useState(initial?.start_date ?? "");
   const [endDate, setEndDate] = useState(initial?.end_date ?? "");
   const [currency, setCurrency] = useState(initial?.currency ?? "USD");
+  const [notes, setNotes] = useState(initial?.notes ?? "");
 
   function toggleInterest(value: string) {
     setInterests((prev) =>
@@ -70,6 +71,7 @@ export function TripForm({
         interests,
         travel_style: String(form.get("travel_style")) as TravelStyle,
         pace: String(form.get("pace")) as Pace,
+        notes: notes.trim() || null,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -162,6 +164,23 @@ export function TripForm({
             })}
           </div>
         </div>
+
+        <div className="flex flex-col gap-1.5">
+          <LabelText>Anything specific?</LabelText>
+          <p className="text-xs text-muted">
+            Occasions, must-dos, foods you love, places or activities to avoid,
+            mobility needs, a splurge you want built in — Wander plans around it.
+          </p>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={4}
+            maxLength={2000}
+            className={`${controlClass} resize-y leading-relaxed`}
+            placeholder="e.g. Celebrating our anniversary. We love ramen and vinyl bars, want one slow onsen day, and prefer trains over taxis. Skip anything too touristy."
+          />
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <Label>
             <LabelText>Travel style</LabelText>

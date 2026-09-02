@@ -19,11 +19,16 @@ def _num_days(trip: Trip) -> int:
 def _build_prompt(trip: Trip) -> str:
     interests = ", ".join(trip.interests) or "general sightseeing"
     budget = f"{trip.budget_total} {trip.currency}" if trip.budget_total else "flexible"
+    notes = (trip.notes or "").strip()
+    notes_line = (
+        f"Traveler notes (honor these closely): {notes}\n" if notes else ""
+    )
     return (
         f"Plan a {_num_days(trip)}-day trip to {trip.destination}.\n"
         f"Dates: {trip.start_date} to {trip.end_date}. Travelers: {trip.num_travelers}.\n"
         f"Total budget: {budget}. Interests: {interests}.\n"
-        f"Travel style: {trip.travel_style}. Preferred pace: {trip.pace}.\n\n"
+        f"Travel style: {trip.travel_style}. Preferred pace: {trip.pace}.\n"
+        f"{notes_line}\n"
         "For each day give a one-sentence summary, an estimated daily budget for the whole "
         f"party in {trip.currency}, and 3-6 time-ordered items. Each item has a title, a "
         "category (attraction | food | activity | transit | rest), a short description, "

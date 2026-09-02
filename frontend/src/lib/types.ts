@@ -14,6 +14,7 @@ export interface Trip {
   interests: string[];
   travel_style: TravelStyle;
   pace: Pace;
+  notes: string | null;
   status: string;
   created_at: string;
   updated_at: string;
@@ -63,4 +64,5 @@ export interface TripCreateInput {
   interests?: string[];
   travel_style?: TravelStyle;
   pace?: Pace;
+  notes?: string | null;
 }

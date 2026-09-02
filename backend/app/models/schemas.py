@@ -23,6 +23,7 @@ class TripCreate(BaseModel):
     interests: list[str] = Field(default_factory=list)
     travel_style: TravelStyle = "mid"
     pace: Pace = "moderate"
+    notes: str | None = Field(default=None, max_length=2000)
 
     @model_validator(mode="after")
     def _check_dates(self) -> "TripCreate":
@@ -43,6 +44,7 @@ class TripUpdate(BaseModel):
     interests: list[str] | None = None
     travel_style: TravelStyle | None = None
     pace: Pace | None = None
+    notes: str | None = Field(default=None, max_length=2000)
     status: str | None = None
 
 
@@ -120,6 +122,7 @@ class TripOut(BaseModel):
     interests: list[str]
     travel_style: str
     pace: str
+    notes: str | None = None
     status: str
     created_at: dt.datetime
     updated_at: dt.datetime

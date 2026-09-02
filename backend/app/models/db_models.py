@@ -34,6 +34,7 @@ class Trip(Base):
     interests: Mapped[list[str]] = mapped_column(ARRAY(String), default=list, server_default="{}")
     travel_style: Mapped[str] = mapped_column(String(20), default="mid", server_default="mid")
     pace: Mapped[str] = mapped_column(String(20), default="moderate", server_default="moderate")
+    notes: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(20), default="draft", server_default="draft")
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
