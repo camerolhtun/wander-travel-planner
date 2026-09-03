@@ -32,6 +32,13 @@ export const metadata: Metadata = {
   title: "Wander — plan a trip in a minute",
   description:
     "Give Wander a destination, dates and your taste. It draws a day-by-day route with times and an estimated daily budget — editable, and saved to your trips.",
+  icons: {
+    icon: [
+      { url: "/favicon.jpg", type: "image/jpeg" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/favicon.jpg",
+  },
 };
 
 // Set the theme class before paint to avoid a flash.
