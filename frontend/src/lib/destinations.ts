@@ -11,6 +11,17 @@ export type Destination = {
 
 export const DESTINATIONS: Destination[] = [
   {
+    slug: "bagan",
+    name: "Bagan, Myanmar",
+    city: "Bagan",
+    img: "/bagan.jpg",
+    tag: "Heritage",
+    days: 5,
+    region: "Mandalay Region",
+    blurb:
+      "Thousands of pagodas, the birthplace of a country, and a breathtaking sunset over all this history — in one peaceful place.",
+  },
+  {
     slug: "kyoto",
     name: "Kyoto, Japan",
     city: "Kyoto",
