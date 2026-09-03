@@ -48,7 +48,7 @@ export function HeroPlanner() {
 
       <div className="mx-auto w-full max-w-6xl px-6 pb-14 pt-28 sm:pt-40 md:pb-20">
         <span className="rise inline-block rounded-full border border-white/25 bg-white/10 px-3 py-1 font-[var(--font-mono)] text-[0.62rem] uppercase tracking-[0.22em] text-white/85 backdrop-blur-sm">
-          Wander — AI itinerary planner
+          Wander — your personalized itinerary planner
         </span>
 
         <h1 className="mt-6 max-w-[16ch] font-[var(--font-display)] text-[clamp(2.9rem,8vw,6rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-white [text-wrap:balance]">
