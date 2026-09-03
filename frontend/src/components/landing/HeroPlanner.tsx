@@ -29,7 +29,7 @@ export function HeroPlanner() {
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <Image
           src="/hero-fuji.jpg"
-          alt="Mount Fuji framed by cherry blossom in spring"
+          alt="Mount Fuji mirrored in a still lake, framed by red autumn maple leaves"
           fill
           priority
           sizes="100vw"
