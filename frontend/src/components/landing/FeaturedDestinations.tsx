@@ -2,33 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
-
-const DESTINATIONS = [
-  {
-    name: "Kyoto, Japan",
-    img: "/kyoto.jpg",
-    tag: "Culture",
-    days: 10,
-    region: "Kansai Region",
-    blurb: "Ancient temples, zen gardens, and machiya streets that slow the day down.",
-  },
-  {
-    name: "Bali, Indonesia",
-    img: "/bali.jpg",
-    tag: "Nature",
-    days: 14,
-    region: "Southeast Asia",
-    blurb: "Lake temples, rice terraces, and warungs between the surf breaks.",
-  },
-  {
-    name: "Santorini, Greece",
-    img: "/santorini.jpg",
-    tag: "Coast",
-    days: 7,
-    region: "Cyclades Islands",
-    blurb: "White-washed villages stacked on the caldera, best at golden hour.",
-  },
-];
+import { DESTINATIONS } from "@/lib/destinations";
 
 function PinIcon() {
   return (
@@ -61,9 +35,9 @@ export function FeaturedDestinations() {
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {DESTINATIONS.map((d, i) => (
-            <Reveal key={d.name} delay={i * 90}>
+            <Reveal key={d.slug} delay={i * 90}>
               <Link
-                href={`/trips/new?to=${encodeURIComponent(d.name)}`}
+                href={`/blog/${d.slug}`}
                 className="group flex h-full flex-col overflow-hidden rounded-[24px] border border-border bg-surface shadow-[var(--shadow-soft)] transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
@@ -95,7 +69,7 @@ export function FeaturedDestinations() {
                       {d.region}
                     </span>
                     <span className="flex items-center gap-1 text-[var(--lake)] transition-transform duration-200 group-hover:translate-x-0.5">
-                      Explore →
+                      Read the guide →
                     </span>
                   </div>
                 </div>
