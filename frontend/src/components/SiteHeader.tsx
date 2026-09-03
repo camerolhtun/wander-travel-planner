@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Compass } from "@/components/brand/Compass";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { createClient } from "@/lib/supabase/client";
 
@@ -64,12 +64,23 @@ export function SiteHeader() {
           scrolled ? "shadow-[0_12px_32px_-18px_rgba(23,60,82,0.3)]" : ""
         }`}
       >
-        <Link
-          href="/"
-          className="flex items-center gap-2 pr-3 font-[var(--font-display)] text-base tracking-tight"
-        >
-          <Compass size={26} />
-          <span className="font-semibold">Wander</span>
+        <Link href="/" aria-label="Wander — home" className="flex items-center pr-3">
+          <Image
+            src="/wander-logo.png"
+            alt="Wander"
+            width={1973}
+            height={344}
+            priority
+            className="h-5 w-auto sm:h-6 dark:hidden"
+          />
+          <Image
+            src="/wander-logo-dark.png"
+            alt="Wander"
+            width={1973}
+            height={344}
+            priority
+            className="hidden h-5 w-auto sm:h-6 dark:block"
+          />
         </Link>
 
         {onLanding && (
