@@ -58,12 +58,13 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-30 px-4 pt-3 print:hidden">
+    <header className="sticky top-0 z-30 print:hidden">
       <nav
-        className={`glass-nav mx-auto flex max-w-6xl items-center justify-between rounded-full px-4 py-2.5 text-sm transition-shadow duration-300 ${
+        className={`glass-nav flex w-full items-center justify-between border-x-0 border-t-0 px-6 py-3 text-sm transition-shadow duration-300 ${
           scrolled ? "shadow-[0_12px_32px_-18px_rgba(23,60,82,0.3)]" : ""
         }`}
       >
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
         <Link href="/" aria-label="Wander — home" className="flex items-center pr-3">
           <Image
             src="/wander-logo.png"
@@ -123,6 +124,7 @@ export function SiteHeader() {
           )}
           <span className="mx-1 hidden h-4 w-px bg-border sm:block" />
           <ThemeToggle />
+        </div>
         </div>
       </nav>
     </header>
