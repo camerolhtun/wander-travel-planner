@@ -18,7 +18,7 @@ export function SiteFooter() {
             alt="Wander"
             width={1973}
             height={344}
-            className="h-6 w-auto"
+            className="h-5 w-auto"
           />
           <span className="font-[var(--font-mono)] text-xs text-white/50">© 2026</span>
         </div>

@@ -71,7 +71,7 @@ export function SiteHeader() {
             width={1973}
             height={344}
             priority
-            className="h-5 w-auto sm:h-6 dark:hidden"
+            className="h-4 w-auto sm:h-5 dark:hidden"
           />
           <Image
             src="/wander-logo-dark.png"
@@ -79,7 +79,7 @@ export function SiteHeader() {
             width={1973}
             height={344}
             priority
-            className="hidden h-5 w-auto sm:h-6 dark:block"
+            className="hidden h-4 w-auto sm:h-5 dark:block"
           />
         </Link>
 
