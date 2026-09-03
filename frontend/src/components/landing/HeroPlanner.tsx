@@ -28,7 +28,7 @@ export function HeroPlanner() {
           letting overlays (e.g. the date popover) spill past the section. */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <Image
-          src="/hero-fuji.jpg"
+          src="/fuji-hero.jpg"
           alt="Mount Fuji mirrored in a still lake, framed by red autumn maple leaves"
           fill
           priority
