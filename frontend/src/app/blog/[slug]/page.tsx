@@ -73,13 +73,10 @@ export default async function DestinationGuide({
           Guide coming soon
         </p>
         <p className="mt-3 text-[15px] leading-relaxed text-foreground">
-          We&apos;re writing this one. A hands-on {d.city} guide — where to base
-          yourself, the walks worth doing, what to eat, and what&apos;s fine to
-          skip — is on the way.
+          Blog page coming soon.
         </p>
         <p className="mt-2 text-[15px] leading-relaxed text-muted">
-          In the meantime, let Wander draft you a day-by-day itinerary and shape
-          it from there.
+          Feel free to check out other features in the meantime.  
         </p>
       </div>
 
