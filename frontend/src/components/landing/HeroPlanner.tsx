@@ -44,11 +44,6 @@ export function HeroPlanner() {
               "linear-gradient(to top, rgba(11,20,24,0.7) 0%, rgba(11,20,24,0.28) 42%, rgba(11,20,24,0) 72%), linear-gradient(100deg, rgba(11,20,24,0.5) 0%, rgba(11,20,24,0.12) 44%, transparent 62%)",
           }}
         />
-        <div
-          aria-hidden
-          className="absolute inset-x-0 bottom-0 h-24"
-          style={{ background: "linear-gradient(to top, var(--background), transparent)" }}
-        />
       </div>
 
       <div className="mx-auto w-full max-w-6xl px-6 pb-14 pt-28 sm:pt-40 md:pb-20">
